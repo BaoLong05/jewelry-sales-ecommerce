@@ -7,6 +7,13 @@ bin-release/
 # Other files and folders
 .settings/
 
+# Vagrant
+.vagrant/
+Vagrantfile
+
+# Docker
+docker-compose.yml
+
 # Executables
 *.swf
 *.air
