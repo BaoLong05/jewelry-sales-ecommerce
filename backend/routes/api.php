@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
 
 
 //api đăng nhập, đăng ký, lấy user hiện tại, đăng xuất
@@ -27,3 +28,23 @@ Route::middleware(['auth:sanctum', 'permission:manage_users'])
         Route::get('/', [PermissionController::class, 'index']);
         Route::post('/assign', [PermissionController::class, 'assignPermissions']);
     });
+
+
+//api danh muc
+Route::prefix('v1')->group(function () {
+
+    // all 
+    Route::get('/category', [CategoryController::class, 'index']);
+    //tim kiem
+    Route::get('/category/{id}', [CategoryController::class, 'show']);
+
+    // staff - admin
+    Route::middleware(['auth:sanctum', 'permission:category.create'])
+        ->post('/category', [CategoryController::class, 'store']);
+
+    Route::middleware(['auth:sanctum', 'permission:category.update'])
+        ->put('/category/{id}', [CategoryController::class, 'update']);
+
+    Route::middleware(['auth:sanctum', 'permission:category.delete'])
+        ->delete('/category/{id}', [CategoryController::class, 'destroy']);
+});

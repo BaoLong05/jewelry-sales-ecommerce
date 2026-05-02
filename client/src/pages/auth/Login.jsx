@@ -12,14 +12,25 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const res = await loginApi(form);
+
       const { user, token } = res.data.data;
+
+      // token save 
       localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
       setUser(user);
-      const role = user.roles[0]?.name;
-      if (role === "admin") navigate("/admin");
-      else if (role === "staff") navigate("/staff");
-      else navigate("/");
+
+      const role = user.roles?.[0]?.name;
+
+      // kiem tra quyen khi login
+      if (["admin", "staff"].includes(role)) {
+        navigate("/admin/categories");
+      } else {
+        navigate("/");
+      }
+
+      toast.success("Đăng nhập thành công");
     } catch (error) {
       const message =
         error.response?.data?.message || "Tài khoản hoặc mật khẩu không đúng!";
@@ -27,30 +38,41 @@ export default function Login() {
     }
   };
 
+  // LOGIN GOOGLE
   const handleGoogle = () => {
     google.accounts.id.initialize({
-      client_id: "Api console google",
+      client_id: "YOUR_GOOGLE_CLIENT_ID",
       callback: async (response) => {
         try {
           const res = await loginWithGoogle(response.credential);
 
           const { user, token } = res.data.data;
 
+          // token save
           localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+
           setUser(user);
 
-          const role = user.roles[0]?.name;
-          if (role === "admin") navigate("/admin");
-          else if (role === "staff") navigate("/staff");
-          else navigate("/");
+          const role = user.roles?.[0]?.name;
+
+          if (["admin", "staff"].includes(role)) {
+            navigate("/admin/categories");
+          } else {
+            navigate("/");
+          }
+
+          toast.success("Đăng nhập Google thành công");
         } catch (err) {
           console.log(err);
+          toast.error("Đăng nhập Google thất bại");
         }
       },
     });
 
     google.accounts.id.prompt();
   };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-stone-50 via-amber-50/30 to-stone-100 px-4 sm:px-6 py-6 sm:py-8 md:py-12">
