@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AuthController;
 //api đăng nhập, đăng ký, lấy user hiện tại, đăng xuất
 Route::prefix('auth')->group(function () {
 
+    Route::post('/google', [AuthController::class, 'loginWithGoogle']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 

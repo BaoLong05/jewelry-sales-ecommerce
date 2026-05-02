@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { loginApi } from "../../services/authService";
+import { loginApi, loginWithGoogle } from "../../services/authService";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -25,6 +25,31 @@ export default function Login() {
         error.response?.data?.message || "Tài khoản hoặc mật khẩu không đúng!";
       toast.error(message);
     }
+  };
+
+  const handleGoogle = () => {
+    google.accounts.id.initialize({
+      client_id: "Api console google",
+      callback: async (response) => {
+        try {
+          const res = await loginWithGoogle(response.credential);
+
+          const { user, token } = res.data.data;
+
+          localStorage.setItem("token", token);
+          setUser(user);
+
+          const role = user.roles[0]?.name;
+          if (role === "admin") navigate("/admin");
+          else if (role === "staff") navigate("/staff");
+          else navigate("/");
+        } catch (err) {
+          console.log(err);
+        }
+      },
+    });
+
+    google.accounts.id.prompt();
   };
 
   return (
@@ -75,9 +100,7 @@ export default function Login() {
                   className="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-amber-200 focus:border-amber-300 transition-all duration-200 outline-none text-gray-800 placeholder:text-gray-400 text-sm sm:text-base"
                   placeholder="Email"
                   value={form.email}
-                  onChange={(e) =>
-                    setForm({ ...form, email: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
               </div>
 
@@ -133,6 +156,18 @@ export default function Login() {
                 </Link>
               </p>
             </form>
+            <button
+              type="button"
+              onClick={handleGoogle}
+              className="w-full mt-3 flex items-center justify-center gap-2 border border-gray-300 py-2.5 rounded-xl hover:bg-gray-50 transition"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                className="w-5 h-5"
+                alt="google"
+              />
+              Đăng nhập với Google
+            </button>
           </div>
         </div>
 

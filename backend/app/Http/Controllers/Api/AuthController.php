@@ -8,6 +8,7 @@ use App\Services\AuthService;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use Illuminate\Http\Request;
+use App\Http\Requests\GoogleLoginRequest;
 
 class AuthController extends Controller
 {
@@ -17,6 +18,18 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
+    //dang nhap bang google
+    public function loginWithGoogle(GoogleLoginRequest $request)
+    {
+        $result = $this->authService->loginWithGoogle(
+            $request->validated()['token']
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => $result
+        ]);
+    }
     //dang ky
     public function register(RegisterRequest $request)
     {
