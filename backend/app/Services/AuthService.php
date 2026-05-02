@@ -5,9 +5,38 @@ namespace App\Services;
 use App\Exceptions\AuthException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
+use App\Exceptions\Auth\InvalidGoogleTokenException;
 
 class AuthService
 {
+    //dang nhap bang google
+    public function loginWithGoogle(string $token): array
+    {
+        try {
+            /** @var \Laravel\Socialite\Two\GoogleProvider $google */
+            $google = Socialite::driver('google');
+
+            $googleUser = $google->userFromToken($token);
+        } catch (\Exception $e) {
+            throw new InvalidGoogleTokenException();
+        }
+
+        $user = User::updateOrCreate([
+            'email' => $googleUser->getEmail()
+        ], [
+            'name' => $googleUser->getName(),
+            'password' => bcrypt(Str::random(16))
+        ]);
+
+        $accessToken = $user->createToken('token')->plainTextToken;
+
+        return [
+            'user' => $user,
+            'token' => $accessToken
+        ];
+    }
     //dang ky
     public function register($data)
     {
