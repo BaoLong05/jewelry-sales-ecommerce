@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ProductController;
 
 
 //api đăng nhập, đăng ký, lấy user hiện tại, đăng xuất
@@ -33,7 +34,7 @@ Route::middleware(['auth:sanctum', 'permission:manage_users'])
 //api danh muc
 Route::prefix('v1')->group(function () {
 
-    // all 
+    // public 
     Route::get('/category', [CategoryController::class, 'index']);
     //tim kiem
     Route::get('/category/{id}', [CategoryController::class, 'show']);
@@ -47,4 +48,18 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['auth:sanctum', 'permission:category.delete'])
         ->delete('/category/{id}', [CategoryController::class, 'destroy']);
+});
+
+Route::prefix('v1')->group(function () {
+
+    // public api 
+    Route::get('products', [ProductController::class, 'index']);
+    Route::get('products/{id}', [ProductController::class, 'show']);
+
+    // admin- staff
+    Route::middleware(['auth:sanctum', 'role:admin|staff'])->group(function () {
+        Route::post('products', [ProductController::class, 'store']);
+        Route::match(['PUT', 'POST'], 'products/{id}', [ProductController::class, 'update']);
+        Route::delete('products/{id}', [ProductController::class, 'destroy']);
+    });
 });
