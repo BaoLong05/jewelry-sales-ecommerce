@@ -3,12 +3,9 @@ import { navigateTo } from "../utils/navigate";
 
 const axiosClient = axios.create({
   baseURL: "http://192.168.33.13:8000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-//tu dong gan token
+// attach token
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -17,15 +14,16 @@ axiosClient.interceptors.request.use((config) => {
   return config;
 });
 
-//xu ly global
+// global error
 axiosClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
       localStorage.removeItem("token");
       navigateTo("/login");
     }
-    return Promise.reject(error);
+    return Promise.reject(err);
   },
 );
+
 export default axiosClient;
