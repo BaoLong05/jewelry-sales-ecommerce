@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
- 
+
 use App\Http\Requests\AddToCartRequest;
 use App\Http\Requests\UpdateCartItemRequest;
 use App\Services\CartService;
@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -59,27 +60,22 @@ class CartController extends Controller
     }
 
     //cap nhat san pham trong gio hang
-    public function update(UpdateCartItemRequest $request, int $cartItemId): JsonResponse
-    {
-        try {
-            $cartItem = $this->cartService->updateCartItem(
-                userId: $request->user()->id,
-                cartItemId: $cartItemId,
-                quantity: $request->validated('quantity'),
-            );
+   public function update(UpdateCartItemRequest $request, $cartItemId)
+{
+    $data = $this->cartService->updateCartItem(
+        Auth::id(),                      
+        (int) $cartItemId,               
+        $request->validated()['quantity']
+    );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Cập nhật giỏ hàng thành công.',
-                'data'    => $cartItem,
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
-        }
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Cập nhật giỏ hàng thành công.',
+        'data' => $data
+    ]);
+}
+
+
 
     //xoa 1 san pham khoi gio hang
     public function destroy(Request $request, int $cartItemId): JsonResponse

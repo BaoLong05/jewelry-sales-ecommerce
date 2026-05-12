@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\CartController;  
+use App\Http\Controllers\Api\CartController;
 
 
 //api đăng nhập, đăng ký, lấy user hiện tại, đăng xuất
@@ -66,13 +66,13 @@ Route::prefix('v1')->group(function () {
 });
 
 //Cart
-Route::middleware('auth:sanctum')->group(function () {
- 
-    // ─── Cart ───────────────────────────────────────────────────
-    Route::get   ('cart',              [CartController::class, 'index']);   // Xem giỏ hàng
-    Route::post  ('cart',              [CartController::class, 'store']);   // Thêm sản phẩm
-    Route::put   ('cart/{cartItemId}', [CartController::class, 'update']); // Sửa số lượng
-    Route::delete('cart/{cartItemId}', [CartController::class, 'destroy']); // Xóa 1 item
-    Route::delete('cart',              [CartController::class, 'clear']);   // Xóa toàn bộ
- 
+Route::prefix('v1')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('cart',              [CartController::class, 'index']);   // danh sach gio hang
+        Route::post('cart',              [CartController::class, 'store']);   // them san pham vao gio hang
+        Route::put('cart/{cartItemId}', [CartController::class, 'update']); // sua so luong trong gio hang
+        Route::delete('cart/{cartItemId}', [CartController::class, 'destroy']); // xoa 1 item
+        Route::delete('cart',              [CartController::class, 'clear']);   // xoa toan bo item
+
+    });
 });

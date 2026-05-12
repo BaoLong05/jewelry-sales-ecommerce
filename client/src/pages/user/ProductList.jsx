@@ -3,6 +3,7 @@ import { getProducts } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
 import { Link } from "react-router-dom";
 import { getImageUrl } from "../../utils/image";
+import { createSlug } from "../../utils/slug";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -46,141 +47,194 @@ export default function ProductList() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex gap-3 mb-5">
-        <input
-          className="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-400"
-          placeholder="Tìm kiếm trang sức..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        />
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
-        >
-          Tìm Kiếm
-        </button>
-        <select
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600"
-          value={sort}
-          onChange={(e) => {
-            setSort(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="latest">Mới nhất</option>
-          <option value="price_asc">Giá tăng dần</option>
-          <option value="price_desc">Giá giảm dần</option>
-        </select>
-      </div>
-
-      <div className="flex gap-2 flex-wrap mb-6">
-        <button
-          onClick={() => {
-            setActiveCategory("");
-            setPage(1);
-          }}
-          className={`px-4 py-1.5 rounded-lg text-sm border transition ${
-            activeCategory === ""
-              ? "border-blue-500 text-blue-600 bg-blue-50"
-              : "border-gray-200 text-gray-500 hover:border-gray-300"
-          }`}
-        >
-          Tất cả
-        </button>
-        {categories.map((c) => (
+    <div className="bg-gradient-to-br from-stone-50 via-amber-50/20 to-stone-100 min-h-screen py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8 sm:mb-10">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gray-800 border-l-4 border-amber-500 pl-4 text-left">
+            Bộ sưu tập
+          </h1>
+          <p className="text-gray-500 text-sm mt-2 ml-5 text-left">
+            Những viên ngọc quý dành riêng cho bạn
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="flex-1 flex gap-2">
+            <input
+              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-white/50 focus:bg-white focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none transition text-gray-800 placeholder:text-gray-400 text-sm"
+              placeholder="Tìm kiếm trang sức..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <button
+              onClick={handleSearch}
+              className="px-5 py-2.5 bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-white rounded-xl font-medium transition shadow-sm"
+            >
+              Tìm kiếm
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-gray-600 text-sm whitespace-nowrap">
+              Sắp xếp:
+            </label>
+            <select
+              className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 bg-white/50 focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none transition"
+              value={sort}
+              onChange={(e) => {
+                setSort(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="latest">Mới nhất</option>
+              <option value="price_asc">Giá tăng dần</option>
+              <option value="price_desc">Giá giảm dần</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-8">
           <button
-            key={c.id}
             onClick={() => {
-              setActiveCategory(c.id);
+              setActiveCategory("");
               setPage(1);
             }}
-            className={`px-4 py-1.5 rounded-lg text-sm border transition ${
-              activeCategory === c.id
-                ? "border-blue-500 text-blue-600 bg-blue-50"
-                : "border-gray-200 text-gray-500 hover:border-gray-300"
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              activeCategory === ""
+                ? "bg-amber-600 text-white shadow-md"
+                : "bg-white/60 text-gray-600 hover:bg-amber-100 border border-gray-200"
             }`}
           >
-            {c.name}
+            Tất cả
           </button>
-        ))}
-      </div>
-
-      {products.length === 0 ? (
-        <p className="text-center text-gray-400 py-20">
-          Không tìm thấy sản phẩm.
-        </p>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-          {products.map((p) => {
-            const mainImage = p.images?.find((i) => i.is_main) || p.images?.[0];
-            return (
-              <Link to={`/products/${p.id}`} key={p.id} className="group">
-                <div className="border border-gray-100 rounded-xl overflow-hidden hover:border-gray-200 transition bg-white">
-                  <div className="relative overflow-hidden h-48 bg-gray-50">
-                    <img
-                      src={getImageUrl(mainImage?.image_url)}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
-                  <div className="p-3">
-                    <p className="text-xs text-gray-400 mb-1">
-                      {p.category?.name || ""}
-                    </p>
-                    <p className="text-sm font-medium text-gray-800 truncate mb-2">
-                      {p.name}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-blue-600 font-semibold text-sm">
-                        {Number(p.price).toLocaleString("vi-VN")}₫
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        Còn {p.stock}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
-
-      {lastPage > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="w-8 h-8 border border-gray-200 rounded-lg flex items-center justify-center disabled:opacity-40 hover:border-gray-300 transition"
-          >
-            ‹
-          </button>
-
-          {Array.from({ length: lastPage }, (_, i) => i + 1).map((p) => (
+          {categories.map((c) => (
             <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={`w-8 h-8 rounded-lg text-sm border transition ${
-                page === p
-                  ? "border-blue-500 bg-blue-50 text-blue-600 font-medium"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+              key={c.id}
+              onClick={() => {
+                setActiveCategory(c.id);
+                setPage(1);
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                activeCategory === c.id
+                  ? "bg-amber-600 text-white shadow-md"
+                  : "bg-white/60 text-gray-600 hover:bg-amber-100 border border-gray-200"
               }`}
             >
-              {p}
+              {c.name}
             </button>
           ))}
-
-          <button
-            disabled={page === lastPage}
-            onClick={() => setPage(page + 1)}
-            className="w-8 h-8 border border-gray-200 rounded-lg flex items-center justify-center disabled:opacity-40 hover:border-gray-300 transition"
-          >
-            ›
-          </button>
         </div>
-      )}
+
+        {/* danh sach san pham */}
+        {products.length === 0 ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-amber-100/40 p-10 text-center">
+            <svg
+              className="w-16 h-16 mx-auto text-gray-300 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <p className="text-gray-500">Không tìm thấy sản phẩm nào.</p>
+            <p className="text-gray-400 text-sm mt-1">
+              Hãy thử từ khóa khác hoặc xem tất cả sản phẩm.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+            {products.map((p) => {
+              const mainImage =
+                p.images?.find((i) => i.is_main) || p.images?.[0];
+              return (
+                <Link
+                  to={`/san-pham/${createSlug(p.name)}-${p.id}`}
+                  key={p.id}
+                  className="group bg-white/80 backdrop-blur-sm rounded-xl border border-amber-100/60 overflow-hidden hover:shadow-lg transition duration-300 transform hover:-translate-y-1"
+                >
+                  <div className="relative overflow-hidden aspect-square bg-amber-50">
+                    <img
+                      src={getImageUrl(mainImage?.image_url)}
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    {p.stock <= 0 && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <span className="bg-white/90 text-rose-600 px-2 py-1 rounded-full text-xs font-bold">
+                          Hết hàng
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs text-amber-600 mb-0.5 font-medium">
+                      {p.category?.name || "Trang sức"}
+                    </p>
+                    <h3 className="text-sm font-medium text-gray-800 line-clamp-2 group-hover:text-amber-700 transition">
+                      {p.name}
+                    </h3>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-amber-700 font-bold text-sm">
+                        {Number(p.price).toLocaleString("vi-VN")}₫
+                      </span>
+                      {p.stock > 0 && (
+                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                          còn {p.stock}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+        {/* phan trang */}
+        {lastPage > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-10 flex-wrap">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center disabled:opacity-40 hover:border-amber-300 hover:text-amber-600 transition bg-white/60"
+            >
+              ‹
+            </button>
+
+            {Array.from({ length: Math.min(5, lastPage) }, (_, i) => {
+              let pageNum;
+              if (lastPage <= 5) pageNum = i + 1;
+              else if (page <= 3) pageNum = i + 1;
+              else if (page >= lastPage - 2) pageNum = lastPage - 4 + i;
+              else pageNum = page - 2 + i;
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  className={`w-9 h-9 rounded-full text-sm transition ${
+                    page === pageNum
+                      ? "bg-amber-600 text-white shadow-md"
+                      : "border border-gray-200 text-gray-600 hover:border-amber-300 hover:text-amber-600 bg-white/60"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            <button
+              disabled={page === lastPage}
+              onClick={() => setPage(page + 1)}
+              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center disabled:opacity-40 hover:border-amber-300 hover:text-amber-600 transition bg-white/60"
+            >
+              ›
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

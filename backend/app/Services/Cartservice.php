@@ -23,7 +23,7 @@ class CartService
 
         $items = $cart->items()
             ->with([
-                'product' => fn($q) => $q->select('id', 'name', 'price', 'stock'),
+                'product' => fn($q) => $q->select('id', 'name', 'price', 'description', 'stock'),
                 'product.images' => fn($q) => $q->where('is_main', true)
                     ->select('product_id', 'image_url')
                     ->orderBy('sort_order'),
@@ -88,7 +88,7 @@ class CartService
 
             // reload de tra ve day du gio hang
             $cartItem->load([
-                'product' => fn($q) => $q->select('id', 'name', 'price', 'stock'),
+                'product' => fn($q) => $q->select('id', 'name', 'description', 'price', 'stock'),
                 'product.images',
             ]);
 
@@ -117,7 +117,7 @@ class CartService
             ]);
 
             $cartItem->load([
-                'product' => fn($q) => $q->select('id', 'name', 'price', 'stock'),
+                'product' => fn($q) => $q->select('id', 'name', 'price', 'description', 'stock'),
                 'product.images',
             ]);
 
@@ -157,6 +157,7 @@ class CartService
             'product'      => [
                 'id'         => $product->id,
                 'name'       => $product->name,
+                'description' => $product->description,
                 'price'      => (float) $product->price,
                 'stock'      => $product->stock,
                 'image_url'  => $mainImage,
