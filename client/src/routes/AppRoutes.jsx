@@ -2,32 +2,41 @@ import { Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 
-// import Home from "../pages/user/Home";
+// USER
 import ProductList from "../pages/user/ProductList";
 import ProductDetail from "../pages/user/ProductDetail";
+import Cart from "../pages/user/Cart";
 
+// ADMIN
 import Category from "../pages/admin/Category";
 import Product from "../pages/admin/Product";
 
+// LAYOUT
 import AdminLayout from "../layouts/AdminLayout";
 import UserLayout from "../layouts/UserLayout";
 
+// AUTH
 import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* AUTH */}
+      {/* ================= AUTH ================= */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* USER */}
+      {/* ================= USER ================= */}
       <Route element={<UserLayout />}>
-        <Route path="/products" element={<ProductList />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
+        {/* danh sach san pham */}
+        <Route path="/san-pham" element={<ProductList />} />
+
+        {/* detail có slug + id */}
+        <Route path="/san-pham/:slugId" element={<ProductDetail />} />
+
+        <Route path="/gio-hang" element={<Cart />} />
       </Route>
 
-      {/* ADMIN */}
+      {/* ================= ADMIN ================= */}
       <Route
         path="/admin"
         element={
