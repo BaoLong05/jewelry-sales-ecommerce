@@ -6,6 +6,9 @@ import Register from "../pages/auth/Register";
 import ProductList from "../pages/user/ProductList";
 import ProductDetail from "../pages/user/ProductDetail";
 import Cart from "../pages/user/Cart";
+import AddressForm from "../pages/user/AddressForm";
+import Checkout from "../pages/user/Checkout";
+import OrderSuccess from "../pages/user/OrderSuccess";
 
 // ADMIN
 import Category from "../pages/admin/Category";
@@ -34,6 +37,10 @@ export default function AppRoutes() {
         <Route path="/san-pham/:slugId" element={<ProductDetail />} />
 
         <Route path="/gio-hang" element={<Cart />} />
+
+        <Route path="/dia-chi" element={<AddressForm />} />
+        <Route path="/thanh-toan-thanh-cong" element={<OrderSuccess />} />
+        <Route path="/thanh-toan" element={<Checkout />} />
       </Route>
 
       {/* ================= ADMIN ================= */}

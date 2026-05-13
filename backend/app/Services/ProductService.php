@@ -10,14 +10,20 @@ use App\Exceptions\ProductException;
 
 class ProductService
 {
-      public function authorize(): bool
+    public function authorize(): bool
     {
         return true;
     }
     // danh sach - tim kiem - phan trang
     public function getAll($request)
     {
-        $query = Product::with(['category', 'images']);
+        $query = Product::with([
+            'category',
+            'images',
+            'discounts' => fn($q) => $q
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+        ]);
 
         // Tìm kiếm theo tên hoặc id
         if ($request->search) {
@@ -51,7 +57,13 @@ class ProductService
     // chi tiet san pham
     public function getById($id)
     {
-        $product = Product::with(['images', 'category'])->find($id);
+        $product = Product::with([
+            'images',
+            'category',
+            'discounts' => fn($q) => $q
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+        ])->find($id);
 
         if (!$product) {
             throw ProductException::notFound();
@@ -61,62 +73,62 @@ class ProductService
     }
 
     // them san pham
-public function create($data, $files = [])
-{
-    return DB::transaction(function () use ($data, $files) {
+    public function create($data, $files = [])
+    {
+        return DB::transaction(function () use ($data, $files) {
 
-        // SLUG UNIQUE
-        $slug = Str::slug($data['name']);
-        $baseSlug = $slug;
-        $count = 1;
+            // SLUG UNIQUE
+            $slug = Str::slug($data['name']);
+            $baseSlug = $slug;
+            $count = 1;
 
-        while (Product::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $count++;
-        }
-
-        $product = Product::create([
-            'name' => $data['name'],
-            'slug' => $slug,
-            'description' => $data['description'] ?? null,
-            'price' => $data['price'],
-            'stock' => $data['stock'],
-            'category_id' => $data['category_id'],
-        ]);
-
-        if (!empty($files)) {
-
-            if (count($files) > 5) {
-                throw new \Exception("Chỉ được upload tối đa 5 ảnh");
+            while (Product::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $count++;
             }
 
-            $mainIndex = (int) ($data['main_index'] ?? 0);
+            $product = Product::create([
+                'name' => $data['name'],
+                'slug' => $slug,
+                'description' => $data['description'] ?? null,
+                'price' => $data['price'],
+                'stock' => $data['stock'],
+                'category_id' => $data['category_id'],
+            ]);
 
-            // clamp index
-            $mainIndex = max(0, $mainIndex);
-            $mainIndex = min($mainIndex, count($files) - 1);
+            if (!empty($files)) {
 
-            $destination = public_path('storage/products');
-            if (!file_exists($destination)) {
-                mkdir($destination, 0777, true);
+                if (count($files) > 5) {
+                    throw new \Exception("Chỉ được upload tối đa 5 ảnh");
+                }
+
+                $mainIndex = (int) ($data['main_index'] ?? 0);
+
+                // clamp index
+                $mainIndex = max(0, $mainIndex);
+                $mainIndex = min($mainIndex, count($files) - 1);
+
+                $destination = public_path('storage/products');
+                if (!file_exists($destination)) {
+                    mkdir($destination, 0777, true);
+                }
+
+                foreach ($files as $index => $file) {
+
+                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move($destination, $filename);
+
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_url'  => 'storage/products/' . $filename,
+                        'is_main'    => $index === $mainIndex,
+                        'sort_order' => $index,
+                    ]);
+                }
             }
 
-            foreach ($files as $index => $file) {
-
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move($destination, $filename);
-
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_url'  => 'storage/products/' . $filename,
-                    'is_main'    => $index === $mainIndex,
-                    'sort_order' => $index,
-                ]);
-            }
-        }
-
-        return $product->load('images');
-    });
-}
+            return $product->load('images');
+        });
+    }
 
     // cap nhat
     public function update($id, $data, $files = [])

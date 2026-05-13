@@ -10,11 +10,16 @@ class Payment extends Model
         'order_id',
         'payment_date',
         'amount',
-        'method'
+        'method',
+        'status',           
+        'idempotency_key', 
+        'payment_token',    
+        'transaction_ref',  
+        'gateway_response', 
+        'paid_at',          
     ];
 
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
-    }
+    protected $casts = ['gateway_response' => 'array']; 
+
+    public function order() { return $this->belongsTo(Order::class); }
 }

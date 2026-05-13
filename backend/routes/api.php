@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\AddressController;
+
 
 
 //api đăng nhập, đăng ký, lấy user hiện tại, đăng xuất
@@ -75,4 +78,25 @@ Route::prefix('v1')->group(function () {
         Route::delete('cart',              [CartController::class, 'clear']);   // xoa toan bo item
 
     });
+});
+
+//checkout 
+Route::prefix('v1')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        //them xoa sua dia chi
+        Route::get('/addresses',    [AddressController::class, 'index']);
+        Route::post('/addresses',   [AddressController::class, 'store']);
+        Route::put('/addresses/{id}',    [AddressController::class, 'update']);
+        Route::delete('/addresses/{id}', [AddressController::class, 'destroy']);
+
+        //tien hanh thanh toan
+        Route::post('/checkout/place-order',            [CheckoutController::class, 'placeOrder']);
+        Route::get('/checkout/payment-status/{id}',     [CheckoutController::class, 'paymentStatus']);
+        //kiem tra token
+        Route::get('/checkout/verify-token/{token}',    [CheckoutController::class, 'verifyToken']);
+    });
+
+    // Callback 
+    Route::post('/checkout/callback/{method}',  [CheckoutController::class, 'paymentCallback']);
+    Route::post('/checkout/bank-webhook',       [CheckoutController::class, 'bankWebhook']);
 });
