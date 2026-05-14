@@ -21,7 +21,7 @@ class ProductSeeder extends Seeder
                     'name' => $category->name . " " . $i,
                     'slug' => strtolower($category->slug . "-" . $i),
                     'description' => 'Sản phẩm test',
-                    'price' => rand(100000, 500000),
+                    'price' => rand(1000, 10000),
                     'stock' => rand(10, 50),
                     'category_id' => $category->id
                 ]);

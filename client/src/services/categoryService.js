@@ -11,7 +11,8 @@ export const createCategory = (data) => axiosClient.post("/v1/category", data);
 export const updateCategory = (id, data) =>
   axiosClient.put(`/v1/category/${id}`, data);
 //xoa danh muc
-export const deleteCategory = (id) => axiosClient.delete(`/v1/category/${id}`);
+export const deleteCategory = (id, data) =>
+  axiosClient.delete(`/v1/category/${id}`, { data });
 
 //tim kiem
 export const searchCategory = (keyword) =>

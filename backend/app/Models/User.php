@@ -4,17 +4,23 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Address;
 
 class User extends Authenticatable
 {
     use HasApiTokens;
 
     protected $fillable = [
-        'name', 'email', 'password', 'phone', 'address'
+        'name',
+        'email',
+        'password',
+        'phone',
+        'address'
     ];
 
     protected $hidden = [
-        'password', 'remember_token'
+        'password',
+        'remember_token'
     ];
 
     // ================= RELATION =================
@@ -54,5 +60,9 @@ class User extends Authenticatable
         if ($role) {
             $this->roles()->syncWithoutDetaching([$role->id]);
         }
+    }
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
     }
 }

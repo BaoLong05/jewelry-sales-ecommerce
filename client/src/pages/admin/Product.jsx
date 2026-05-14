@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { getImageUrl } from "../../utils/image";
 import {
-  getProducts, createProduct, updateProduct, deleteProduct,
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
 import { toast } from "react-toastify";
@@ -12,7 +15,13 @@ export default function Product() {
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
-  const [form, setForm] = useState({ name: "", price: "", stock: "", category_id: "", description: "" });
+  const [form, setForm] = useState({
+    name: "",
+    price: "",
+    stock: "",
+    category_id: "",
+    description: "",
+  });
   const [images, setImages] = useState([]);
   const [preview, setPreview] = useState([]);
   const [mainIndex, setMainIndex] = useState(0);
@@ -20,7 +29,10 @@ export default function Product() {
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => { fetchProducts(); fetchCategories(); }, [page]);
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, [page]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -28,7 +40,9 @@ export default function Product() {
       const res = await getProducts({ search: keyword, page });
       setProducts(res.data.data.data || []);
       setLastPage(res.data.data.last_page || 1);
-    } catch { toast.error("Lỗi load sản phẩm"); }
+    } catch {
+      toast.error("Lỗi load sản phẩm");
+    }
     setLoading(false);
   };
 
@@ -36,14 +50,18 @@ export default function Product() {
     try {
       const res = await getCategories();
       setCategories(res.data.data.data || res.data || []);
-    } catch { toast.error("Lỗi load danh mục"); }
+    } catch {
+      toast.error("Lỗi load danh mục");
+    }
   };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const newImages = [...images, ...files].slice(0, 5);
     setImages(newImages);
-    setPreview(newImages.map((f) => f instanceof File ? URL.createObjectURL(f) : f));
+    setPreview(
+      newImages.map((f) => (f instanceof File ? URL.createObjectURL(f) : f)),
+    );
   };
 
   const removeImage = (index) => {
@@ -59,9 +77,13 @@ export default function Product() {
     const formData = new FormData();
     Object.keys(form).forEach((key) => formData.append(key, form[key]));
     formData.append("main_index", parseInt(mainIndex, 10));
-    images.forEach((img) => { if (img instanceof File) formData.append("images[]", img); });
-    if (editing) formData.append("_method", "PUT");
-
+    images.forEach((img) => {
+      if (img instanceof File) formData.append("images[]", img);
+    });
+    if (editing) {
+      formData.append("_method", "PUT");
+      formData.append("updated_at", editing.updated_at);
+    }
     try {
       if (editing) {
         await updateProduct(editing.id, formData);
@@ -73,20 +95,42 @@ export default function Product() {
       resetForm();
       fetchProducts();
     } catch (err) {
-      console.log("Validation errors:", err.response?.data);
-
-      toast.error(err.response?.data?.message || "Lỗi!");
+      if (err.response?.status === 409) {
+        toast.error(
+          "Sản phẩm vừa được cập nhật bởi người khác. Vui lòng tải lại!",
+        );
+        resetForm();
+        fetchProducts(); 
+      } else {
+        toast.error(err.response?.data?.message || "Lỗi!");
+      }
     }
   };
 
   const resetForm = () => {
-    setForm({ name: "", price: "", stock: "", category_id: "", description: "" });
-    setImages([]); setPreview([]); setMainIndex(0); setEditing(null); setShowForm(false);
+    setForm({
+      name: "",
+      price: "",
+      stock: "",
+      category_id: "",
+      description: "",
+    });
+    setImages([]);
+    setPreview([]);
+    setMainIndex(0);
+    setEditing(null);
+    setShowForm(false);
   };
 
   const handleEdit = (item) => {
     setEditing(item);
-    setForm({ name: item.name, price: item.price, stock: item.stock, category_id: item.category_id, description: item.description || "" });
+    setForm({
+      name: item.name,
+      price: item.price,
+      stock: item.stock,
+      category_id: item.category_id,
+      description: item.description || "",
+    });
     setPreview(item.images?.map((img) => getImageUrl(img.image_url)) || []);
     setImages([]);
     const main = item.images?.findIndex((i) => i.is_main);
@@ -98,20 +142,26 @@ export default function Product() {
   const handleDelete = async (id) => {
     if (!window.confirm("Xóa sản phẩm này?")) return;
     try {
-      await deleteProduct(id);
+      await deleteProduct(id,{ updated_at: product?.updated_at });
       toast.success("Xóa thành công");
       fetchProducts();
-    } catch { toast.error("Xóa thất bại"); }
+    } catch {
+      toast.error("Xóa thất bại");
+    }
   };
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Quản lý sản phẩm</h1>
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Quản lý sản phẩm
+        </h1>
         <button
-          onClick={() => { resetForm(); setShowForm(true); }}
+          onClick={() => {
+            resetForm();
+            setShowForm(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center gap-2"
         >
           <span className="text-lg leading-none">+</span> Thêm sản phẩm
@@ -123,14 +173,23 @@ export default function Product() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center pt-10 px-4">
           <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
             <div className="flex items-center justify-between px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold">{editing ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}</h2>
-              <button onClick={resetForm} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+              <h2 className="text-lg font-semibold">
+                {editing ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
+              </h2>
+              <button
+                onClick={resetForm}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                &times;
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-500 mb-1 block">Tên sản phẩm</label>
+                  <label className="text-sm text-gray-500 mb-1 block">
+                    Tên sản phẩm
+                  </label>
                   <input
                     className="border border-gray-200 rounded-lg p-2.5 w-full text-sm focus:outline-none focus:border-blue-400"
                     placeholder="Nhập tên sản phẩm"
@@ -139,60 +198,97 @@ export default function Product() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500 mb-1 block">Danh mục</label>
+                  <label className="text-sm text-gray-500 mb-1 block">
+                    Danh mục
+                  </label>
                   <select
                     className="border border-gray-200 rounded-lg p-2.5 w-full text-sm focus:outline-none focus:border-blue-400"
                     value={form.category_id}
-                    onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, category_id: e.target.value })
+                    }
                   >
                     <option value="">Chọn danh mục</option>
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500 mb-1 block">Giá (₫)</label>
+                  <label className="text-sm text-gray-500 mb-1 block">
+                    Giá (₫)
+                  </label>
                   <input
                     className="border border-gray-200 rounded-lg p-2.5 w-full text-sm focus:outline-none focus:border-blue-400"
                     placeholder="VD: 500000"
                     value={form.price}
-                    onChange={(e) => setForm({ ...form, price: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, price: e.target.value })
+                    }
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500 mb-1 block">Tồn kho</label>
+                  <label className="text-sm text-gray-500 mb-1 block">
+                    Tồn kho
+                  </label>
                   <input
                     className="border border-gray-200 rounded-lg p-2.5 w-full text-sm focus:outline-none focus:border-blue-400"
                     placeholder="VD: 10"
                     value={form.stock}
-                    onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, stock: e.target.value })
+                    }
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-sm text-gray-500 mb-1 block">Mô tả</label>
+                <label className="text-sm text-gray-500 mb-1 block">
+                  Mô tả
+                </label>
                 <textarea
                   className="border border-gray-200 rounded-lg p-2.5 w-full text-sm focus:outline-none focus:border-blue-400 resize-none"
                   rows={3}
                   placeholder="Mô tả sản phẩm..."
                   value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
                 />
               </div>
 
               {/* Upload ảnh */}
               <div>
                 <label className="text-sm text-gray-500 mb-2 block">
-                  Hình ảnh <span className="text-gray-400">(tối đa 5 ảnh, click radio để chọn ảnh chính)</span>
+                  Hình ảnh{" "}
+                  <span className="text-gray-400">
+                    (tối đa 5 ảnh, click radio để chọn ảnh chính)
+                  </span>
                 </label>
                 <label className="flex items-center gap-2 border border-dashed border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-400 transition w-fit">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                   <span className="text-sm text-gray-500">Chọn ảnh</span>
-                  <input type="file" multiple className="hidden" onChange={handleImageChange} accept="image/*" />
+                  <input
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageChange}
+                    accept="image/*"
+                  />
                 </label>
 
                 {preview.length > 0 && (
@@ -202,7 +298,9 @@ export default function Product() {
                         <img
                           src={img}
                           className={`w-20 h-20 object-cover rounded-lg border-2 transition ${
-                            mainIndex === index ? "border-blue-500" : "border-gray-200"
+                            mainIndex === index
+                              ? "border-blue-500"
+                              : "border-gray-200"
                           }`}
                         />
                         {/* Ảnh chính badge */}
@@ -263,7 +361,10 @@ export default function Product() {
           onKeyDown={(e) => e.key === "Enter" && fetchProducts()}
         />
         <button
-          onClick={() => { setPage(1); fetchProducts(); }}
+          onClick={() => {
+            setPage(1);
+            fetchProducts();
+          }}
           className="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
         >
           Tìm
@@ -278,22 +379,37 @@ export default function Product() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="text-left px-4 py-3 text-gray-500 font-medium w-12">ID</th>
-                <th className="text-left px-4 py-3 text-gray-500 font-medium">Sản phẩm</th>
-                <th className="text-left px-4 py-3 text-gray-500 font-medium">Danh mục</th>
-                <th className="text-left px-4 py-3 text-gray-500 font-medium">Giá</th>
-                <th className="text-left px-4 py-3 text-gray-500 font-medium">Tồn kho</th>
-                <th className="text-right px-4 py-3 text-gray-500 font-medium">Hành động</th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium w-12">
+                  ID
+                </th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">
+                  Sản phẩm
+                </th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">
+                  Danh mục
+                </th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">
+                  Giá
+                </th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">
+                  Tồn kho
+                </th>
+                <th className="text-right px-4 py-3 text-gray-500 font-medium">
+                  Hành động
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-16 text-gray-400">Không có sản phẩm nào</td>
+                  <td colSpan={6} className="text-center py-16 text-gray-400">
+                    Không có sản phẩm nào
+                  </td>
                 </tr>
               ) : (
                 products.map((p) => {
-                  const mainImg = p.images?.find((i) => i.is_main) || p.images?.[0];
+                  const mainImg =
+                    p.images?.find((i) => i.is_main) || p.images?.[0];
                   return (
                     <tr key={p.id} className="hover:bg-gray-50 transition">
                       <td className="px-4 py-3 text-gray-400">{p.id}</td>
@@ -307,21 +423,27 @@ export default function Product() {
                           ) : (
                             <div className="w-10 h-10 bg-gray-100 rounded-lg shrink-0" />
                           )}
-                          <span className="font-medium text-gray-800">{p.name}</span>
+                          <span className="font-medium text-gray-800">
+                            {p.name}
+                          </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-500">{p.category?.name || "—"}</td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {p.category?.name || "—"}
+                      </td>
                       <td className="px-4 py-3 text-blue-600 font-medium">
                         {Number(p.price).toLocaleString("vi-VN")}₫
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                          p.stock > 10
-                            ? "bg-green-50 text-green-700"
-                            : p.stock > 0
-                            ? "bg-yellow-50 text-yellow-700"
-                            : "bg-red-50 text-red-600"
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded-md text-xs font-medium ${
+                            p.stock > 10
+                              ? "bg-green-50 text-green-700"
+                              : p.stock > 0
+                                ? "bg-yellow-50 text-yellow-700"
+                                : "bg-red-50 text-red-600"
+                          }`}
+                        >
                           {p.stock > 0 ? `${p.stock} sản phẩm` : "Hết hàng"}
                         </span>
                       </td>

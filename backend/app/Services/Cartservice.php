@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use App\Models\Discount;
 use Exception;
 
 class CartService
@@ -41,6 +42,24 @@ class CartService
         ];
     }
 
+    private function calculatePrice(Product $product): float
+    {
+        // Lấy discount đang áp dụng (nếu có)
+        $discount = $product->discounts()
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->first();
+
+        if ($discount) {
+            if ($discount->type === 'percent') {
+                return round($product->price * (1 - $discount->value / 100), 2);
+            } else {
+                return max(0, round($product->price - $discount->value, 2));
+            }
+        }
+
+        return $product->price;
+    }
     //lay anh vao gio hang, them san pham vao gio hang neu trung tang so luong
     public function addToCart(int $userId, int $productId, int $quantity = 1): array
     {
@@ -57,6 +76,11 @@ class CartService
             }
 
             $cart = $this->getOrCreateCart($userId);
+            //kiem tra lockupdate chong trung cung 1 tai khoan
+            $cartItem = CartItem::where('cart_id', $cart->id)
+                ->where('product_id', $productId)
+                ->lockForUpdate()
+                ->first();
 
             $cartItem = CartItem::where('cart_id', $cart->id)
                 ->where('product_id', $productId)
@@ -71,26 +95,28 @@ class CartService
 
                 $cartItem->update([
                     'quantity' => $newQty,
-                    'price'    => $product->price,   // cap nhat gia moi nhat
+                    'price' => $this->calculatePrice($product),
                 ]);
             } else {
-                if ($quantity > $product->stock) {
-                    throw new Exception("Chỉ còn {$product->stock} sản phẩm trong kho.");
-                }
-
                 $cartItem = CartItem::create([
                     'cart_id'    => $cart->id,
                     'product_id' => $productId,
                     'quantity'   => $quantity,
-                    'price'      => $product->price,
+                    'price'      => $this->calculatePrice($product),
                 ]);
+
+                if (!$cartItem) {
+                    throw new \Exception("Không thể tạo sản phẩm trong giỏ hàng.");
+                }
             }
 
             // reload de tra ve day du gio hang
-            $cartItem->load([
-                'product' => fn($q) => $q->select('id', 'name', 'description', 'price', 'stock'),
-                'product.images',
-            ]);
+            if ($cartItem) {
+                $cartItem->load([
+                    'product' => fn($q) => $q->select('id', 'name', 'description', 'price', 'stock'),
+                    'product.images',
+                ]);
+            }
 
             return $this->formatCartItem($cartItem);
         });
@@ -99,11 +125,14 @@ class CartService
     //cap nhat so luong gio hang
     public function updateCartItem(int $userId, int $cartItemId, int $quantity): array
     {
-        return DB::transaction(function () use ($userId, $cartItemId, $quantity) {
-            $cart     = $this->getOrCreateCart($userId);
-            $cartItem = CartItem::where('id', $cartItemId)
-                ->where('cart_id', $cart->id)
-                ->firstOrFail();
+         return DB::transaction(function () use ($userId, $cartItemId, $quantity) {
+        $cart = $this->getOrCreateCart($userId);
+
+        // kiem tra lockupdate tranh sua trung cung 1 id
+        $cartItem = CartItem::where('id', $cartItemId)
+            ->where('cart_id', $cart->id)
+            ->lockForUpdate()
+            ->firstOrFail();
 
             $product = Product::findOrFail($cartItem->product_id);
 
@@ -113,7 +142,7 @@ class CartService
 
             $cartItem->update([
                 'quantity' => $quantity,
-                'price'    => $product->price,
+                'price' => $this->calculatePrice($product),
             ]);
 
             $cartItem->load([
@@ -152,15 +181,16 @@ class CartService
         return [
             'cart_item_id' => $item->id,
             'quantity'     => $item->quantity,
-            'price'        => (float) $item->price,
+            'price' => (float) $item->price,
             'subtotal'     => round($item->price * $item->quantity, 2),
             'product'      => [
-                'id'         => $product->id,
-                'name'       => $product->name,
-                'description' => $product->description,
-                'price'      => (float) $product->price,
-                'stock'      => $product->stock,
-                'image_url'  => $mainImage,
+                'id'             => $product->id,
+                'name'           => $product->name,
+                'description'    => $product->description,
+                'price' => (float) $item->price,
+                'original_price' => (float) $product->price,
+                'stock'          => $product->stock,
+                'image_url'      => $mainImage,
             ],
         ];
     }

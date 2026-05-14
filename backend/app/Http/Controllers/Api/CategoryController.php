@@ -7,6 +7,7 @@ use App\Services\CategoryService;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use Illuminate\Http\Request;
+use Symfony\Component\Console\Input\Input;
 
 class CategoryController extends Controller
 {
@@ -47,21 +48,37 @@ class CategoryController extends Controller
 
     public function update(UpdateCategoryRequest $request, $id)
     {
+         try {
         $data = $this->service->update($id, $request->validated());
-
-        return response()->json([
-            'success' => true,
-            'data' => $data
-        ]);
+        return response()->json(['success' => true, 'data' => $data]);
+    } catch (\App\Exceptions\CategoryException $e) {
+        // notFound → 404, các lỗi CategoryException khác → 422
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+    } catch (\Exception $e) {
+        $status = str_contains($e->getMessage(), 'reload') ? 409 : 500;
+        return response()->json(['success' => false, 'message' => $e->getMessage()], $status);
+    }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $this->service->delete($id);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Xóa thành công'
-        ]);
+        try {
+            $this->service->delete($id, $request->input('updated_at'));
+            return response()->json([
+                'success' => true,
+                'message' => "Xóa thành công!"
+            ]);
+        } catch (\App\Exceptions\CategoryException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        } catch (\Exception $e) {
+            $status =   str_contains($e->getMessage(), 'reload') ? 409 : 500;
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], $status);
+        }
     }
 }
