@@ -23,7 +23,11 @@ return new class extends Migration
                 'paid',
                 'shipping',
                 'completed',
-                'cancelled'
+                'cancelled',
+                'confirmed',
+                'processing',
+                'delivered',
+                'refunded'
             ]);
 
             $table->text('address');

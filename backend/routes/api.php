@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\OrderController;
+
 
 
 
@@ -100,4 +102,13 @@ Route::prefix('v1')->group(function () {
     // Callback 
     Route::match(['GET', 'POST'], '/checkout/callback/{method}', [CheckoutController::class, 'paymentCallback']);
     Route::post('/checkout/bank-webhook',       [CheckoutController::class, 'bankWebhook']);
+});
+
+//Order
+Route::prefix('v1')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('orders', [OrderController::class, 'index']);
+        Route::get('orders/{id}', [OrderController::class, 'show']);
+        Route::patch('orders/{id}/status', [OrderController::class, 'update']);
+    });
 });
