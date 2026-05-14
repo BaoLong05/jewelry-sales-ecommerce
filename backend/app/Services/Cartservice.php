@@ -76,6 +76,11 @@ class CartService
             }
 
             $cart = $this->getOrCreateCart($userId);
+            //kiem tra lockupdate chong trung cung 1 tai khoan
+            $cartItem = CartItem::where('cart_id', $cart->id)
+                ->where('product_id', $productId)
+                ->lockForUpdate()
+                ->first();
 
             $cartItem = CartItem::where('cart_id', $cart->id)
                 ->where('product_id', $productId)
@@ -120,11 +125,14 @@ class CartService
     //cap nhat so luong gio hang
     public function updateCartItem(int $userId, int $cartItemId, int $quantity): array
     {
-        return DB::transaction(function () use ($userId, $cartItemId, $quantity) {
-            $cart     = $this->getOrCreateCart($userId);
-            $cartItem = CartItem::where('id', $cartItemId)
-                ->where('cart_id', $cart->id)
-                ->firstOrFail();
+         return DB::transaction(function () use ($userId, $cartItemId, $quantity) {
+        $cart = $this->getOrCreateCart($userId);
+
+        // kiem tra lockupdate tranh sua trung cung 1 id
+        $cartItem = CartItem::where('id', $cartItemId)
+            ->where('cart_id', $cart->id)
+            ->lockForUpdate()
+            ->firstOrFail();
 
             $product = Product::findOrFail($cartItem->product_id);
 

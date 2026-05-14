@@ -91,12 +91,13 @@ Route::prefix('v1')->group(function () {
 
         //tien hanh thanh toan
         Route::post('/checkout/place-order',            [CheckoutController::class, 'placeOrder']);
+        Route::post('/checkout/place-order-direct', [CheckoutController::class, 'placeOrderDirect']);
         Route::get('/checkout/payment-status/{id}',     [CheckoutController::class, 'paymentStatus']);
         //kiem tra token
         Route::get('/checkout/verify-token/{token}',    [CheckoutController::class, 'verifyToken']);
     });
 
     // Callback 
-    Route::post('/checkout/callback/{method}',  [CheckoutController::class, 'paymentCallback']);
+    Route::match(['GET', 'POST'], '/checkout/callback/{method}', [CheckoutController::class, 'paymentCallback']);
     Route::post('/checkout/bank-webhook',       [CheckoutController::class, 'bankWebhook']);
 });

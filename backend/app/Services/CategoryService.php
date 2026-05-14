@@ -6,6 +6,7 @@ use App\Models\Category;
 use Illuminate\Support\Str;
 use App\Exceptions\CategoryException;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 
 class CategoryService
@@ -83,7 +84,7 @@ class CategoryService
         return $category;
     }
     //xoa danh muc
-    public function delete($id)
+    public function delete($id, ?string $updatedAt = null)
     {
         $category = Category::with(['children', 'products'])->find($id);
 
@@ -91,6 +92,12 @@ class CategoryService
             throw CategoryException::notFound();
         }
 
+        if ($updatedAt) {
+            $clientTime =  Carbon::parse($updatedAt);
+            if (!$clientTime->equalTo($category->updated_at)) {
+                throw new \Exception("Dữ liệu đã được cập nhật bởi người khác, vui lòng reload lại trang để tiếp tục hành động!");
+            }
+        }
         if ($category->children->count() > 0 || $category->products->count() > 0) {
             throw CategoryException::cannotDelete();
         }

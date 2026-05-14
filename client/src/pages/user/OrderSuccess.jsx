@@ -9,11 +9,15 @@ export default function OrderSuccess() {
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
-    if (!state?.payment_token) { navigate("/"); return; }
-    verifyPaymentToken(state.payment_token)
-      .then(res => { setValid(true); setOrder(res.data.data); })
-      .catch(() => setValid(false));
-  }, []);
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token") || state?.payment_token;
+
+  if (!token) { navigate("/"); return; }
+
+  verifyPaymentToken(token)
+    .then(res => { setValid(true); setOrder(res.data.data); })
+    .catch(() => setValid(false));
+}, []);
 
   const formatPrice = (n) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);

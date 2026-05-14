@@ -19,6 +19,7 @@ class UpdateProductRequest extends FormRequest
             'images.*'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
 
             'main_index'  => 'nullable|integer|min:0',
+            'updated_at'  => 'required|date',
         ];
     }
 
@@ -69,6 +70,9 @@ class UpdateProductRequest extends FormRequest
 
             'main_index.integer' => 'Ảnh đại diện không hợp lệ.',
             'main_index.min' => 'Ảnh đại diện không hợp lệ.',
+
+            'updated_at.required' => 'Thiếu thông tin phiên bản sản phẩm.',
+            'updated_at.date'     => 'Thông tin phiên bản không hợp lệ.',
         ];
     }
 }

@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getCart } from "../../services/cartService";
-import { placeOrder, checkPaymentStatus } from "../../services/checkoutService";
+import {
+  placeOrder,
+  placeOrderDirect,
+  checkPaymentStatus,
+} from "../../services/checkoutService";
 import { getImageUrl } from "../../utils/image";
 import AddressForm from "./AddressForm";
 import { toast } from "react-toastify";
@@ -9,30 +13,45 @@ import { toast } from "react-toastify";
 export default function Checkout() {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState([]);
+
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [loading, setLoading] = useState(false);
   const [qrData, setQrData] = useState(null);
   const pollingRef = useRef(null);
-
+  const isBuyNow = !!state?.buyNowItem;
+  const [cartItemsFromAPI, setCartItemsFromAPI] = useState([]);
   useEffect(() => {
-    if (!state?.selectedCartIds?.length) {
+    if (!state?.selectedCartIds?.length && !state?.buyNowItem) {
       navigate("/gio-hang");
       return;
     }
-    loadItems();
+    if (!isBuyNow) {
+      loadItems(state.selectedCartIds.map(Number));
+    }
     return () => clearInterval(pollingRef.current);
   }, []);
-
-  const loadItems = async () => {
+  const loadItems = async (ids) => {
     const res = await getCart();
     const all = res.data?.data?.items || [];
-    setCartItems(
-      all.filter((i) => state.selectedCartIds.includes(Number(i.cart_item_id))),
+    setCartItemsFromAPI(
+      all.filter((i) => ids.includes(Number(i.cart_item_id))),
     );
   };
-
+  const cartItems = isBuyNow
+    ? [
+        {
+          cart_item_id: "buynow",
+          quantity: state.buyNowItem.quantity,
+          price: state.buyNowItem.price,
+          product: {
+            name: state.buyNowItem.name,
+            image_url: state.buyNowItem.image,
+            original_price: state.buyNowItem.original_price,
+          },
+        },
+      ]
+    : cartItemsFromAPI;
   const formatPrice = (n) =>
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -56,12 +75,25 @@ export default function Checkout() {
       return toast.warning("Vui lòng chọn địa chỉ giao hàng!");
     setLoading(true);
     try {
-      const res = await placeOrder({
-        cart_item_ids: state.selectedCartIds.map((id) => Number(id)),
-        address_id: selectedAddressId,
-        payment_method: paymentMethod,
-      });
-      const data = res.data.data;
+      let data;
+
+      if (isBuyNow) {
+        // Gọi endpoint riêng, không đụng giỏ hàng
+        const res = await placeOrderDirect({
+          product_id: state.buyNowItem.product_id,
+          quantity: state.buyNowItem.quantity,
+          address_id: selectedAddressId,
+          payment_method: paymentMethod,
+        });
+        data = res.data.data;
+      } else {
+        const res = await placeOrder({
+          cart_item_ids: state.selectedCartIds.map(Number),
+          address_id: selectedAddressId,
+          payment_method: paymentMethod,
+        });
+        data = res.data.data;
+      }
 
       if (paymentMethod === "cod") {
         navigate("/thanh-toan-thanh-cong", {

@@ -36,7 +36,10 @@ export default function Category() {
     }
     try {
       if (editing) {
-        await updateCategory(editing.id, form);
+        await updateCategory(editing.id, {
+          ...form,
+          updated_at: editing.updated_at,
+        });
         toast.success("Cập nhật thành công");
       } else {
         await createCategory(form);
@@ -57,6 +60,7 @@ export default function Category() {
   };
 
   const handleDelete = (id) => {
+    const item = categories.find((c)=> c.id === id);
     toast(
       ({ closeToast }) => (
         <div>
@@ -67,7 +71,7 @@ export default function Category() {
             <button
               onClick={async () => {
                 try {
-                  await deleteCategory(id);
+                  await deleteCategory(id, { updated_at: item?.updated_at });
                   toast.success("Xóa thành công");
                   fetchData();
                 } catch (err) {

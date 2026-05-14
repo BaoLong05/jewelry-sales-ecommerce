@@ -83,7 +83,7 @@ export default function ProductDetail() {
     }
   };
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -97,28 +97,19 @@ export default function ProductDetail() {
       return;
     }
 
-    try {
-      const res = await createCart({
-        product_id: product.id,
-        quantity,
-      });
-
-      window.dispatchEvent(new Event("cartUpdated"));
-
-      const cartItemId = res.data?.data?.cart_item_id || res.data?.data?.id;
-      if (!cartItemId)
-        throw new Error("Không lấy được ID sản phẩm trong giỏ hàng");
-
-      navigate("/thanh-toan", {
-        state: { selectedCartIds: [Number(cartItemId)] },
-      });
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Không thể mua ngay, thử lại!",
-      );
-    }
+    navigate("/thanh-toan", {
+      state: {
+        buyNowItem: {
+          product_id: product.id,
+          quantity,
+          name: product.name,
+          price: discountedPrice,
+          original_price: originalPrice,
+          image: product.images?.[0]?.image_url,
+        },
+      },
+    });
   };
-
   if (!product)
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

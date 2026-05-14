@@ -48,25 +48,31 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, $id)
     {
-        $data = $this->service->update(
-            $id,
-            $request->validated(),
-            $request->file('images') ?? []
-        );
-
-        return response()->json([
-            'success' => true,
-            'data' => $data
-        ]);
+        try {
+            $data = $this->service->update(
+                $id,
+                $request->validated(),
+                $request->file('images') ?? []
+            );
+            return response()->json(['success' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            $status = str_contains($e->getMessage(), 'tải lại') ? 409 : 500;
+            return response()->json(['success' => false, 'message' => $e->getMessage()], $status);
+        }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $this->service->delete($id);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Xóa sản phẩm thành công'
-        ]);
+        try {
+            $this->service->delete($id, $request->input('updated_at'));
+            return response()->json(['success' => true, 'message' => 'Xóa sản phẩm thành công']);
+        } catch (\Exception $e) {
+            $status = match (true) {
+                str_contains($e->getMessage(), 'tải lại') => 409,
+                str_contains($e->getMessage(), 'không tồn tại') => 404,
+                default => 500,
+            };
+            return response()->json(['success' => false, 'message' => $e->getMessage()], $status);
+        }
     }
 }

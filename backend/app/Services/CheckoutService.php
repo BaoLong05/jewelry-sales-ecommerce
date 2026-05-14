@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\{CartItem, Order, OrderItem, Payment, Address};
+use App\Models\{CartItem, Order, OrderItem, Payment, Address, Product};
 use Illuminate\Support\Facades\{DB, Http, Log};
 use Illuminate\Support\Str;
 
@@ -154,8 +154,8 @@ class CheckoutService
         $accessKey   = $cfg['access_key'];
         $secretKey   = $cfg['secret_key'];
         $orderId     = $payment->idempotency_key;
-        $orderInfo = 'Thanh toan ' . $order->order_code;
-        $amount = (int) $payment->amount;
+        $orderInfo   = 'ThanhToan_' . $order->order_code;
+        $amount      = (int) round($payment->amount);
         $requestId   = (string) Str::uuid();
         $redirectUrl = $cfg['redirect_url'];
         $ipnUrl      = $cfg['ipn_url'];
@@ -173,7 +173,6 @@ class CheckoutService
             . "&requestId={$requestId}"
             . "&requestType={$requestType}";
 
-            Log::info('MoMo raw hash', ['rawHash' => $rawHash, 'amount' => $amount]);
         $signature = hash_hmac('sha256', $rawHash, $secretKey);
 
         $body = [
@@ -365,5 +364,113 @@ class CheckoutService
     private function verifySignature(string $method, array $data): bool
     {
         return true;
+    }
+
+
+    //mothod check mau ngay khong qua gio hang
+    public function placeOrderDirect($user, array $data): array
+    {
+        return DB::transaction(function () use ($user, $data) {
+            $product = Product::with([
+                'discounts' => fn($q) => $q
+                    ->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now())
+            ])->lockForUpdate()->findOrFail($data['product_id']);
+
+            // kiem tra con hang khong
+            if ($product->stock <= 0) {
+                throw new \Exception("Sản phẩm '{$product->name}' đã hết hàng.");
+            }
+
+            if ($product->stock < $data['quantity']) {
+                throw new \Exception("Sản phẩm '{$product->name}' không đủ hàng");
+            }
+
+            $originalPrice   = (float) $product->price;
+            $discountedPrice = $product->getDiscountedPrice();
+            $itemDiscount    = ($originalPrice - $discountedPrice) * $data['quantity'];
+            $total           = $discountedPrice * $data['quantity'];
+
+            $address = Address::where('id', $data['address_id'])
+                ->where('user_id', $user->id)
+                ->firstOrFail();
+
+            $addressSnapshot = json_encode([
+                'receiver_name' => $address->receiver_name,
+                'phone'         => $address->phone,
+                'province'      => $address->province,
+                'district'      => $address->district,
+                'ward'          => $address->ward,
+                'street'        => $address->street,
+            ]);
+
+            $order = Order::create([
+                'user_id'         => $user->id,
+                'order_code'      => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
+                'total_price'     => $total,
+                'discount_amount' => $itemDiscount,
+                'status'          => 'pending',
+                'address'         => $addressSnapshot,
+                'payment_method'  => $data['payment_method'],
+            ]);
+
+            OrderItem::create([
+                'order_id'        => $order->id,
+                'product_id'      => $product->id,
+                'quantity'        => $data['quantity'],
+                'price'           => $discountedPrice,
+                'original_price'  => $originalPrice,
+                'discount_amount' => $itemDiscount,
+            ]);
+
+            $product->decrement('stock', $data['quantity']);
+
+            $payment = Payment::create([
+                'order_id'        => $order->id,
+                'payment_date'    => now(),
+                'amount'          => $total,
+                'method'          => $data['payment_method'],
+                'status'          => 'pending',
+                'idempotency_key' => (string) Str::uuid(),
+                'payment_token'   => Str::random(64),
+            ]);
+
+            if ($data['payment_method'] === 'cod') {
+                $payment->update(['status' => 'paid', 'paid_at' => now()]);
+                $order->update(['status' => 'paid']);
+                return [
+                    'payment_method'  => 'cod',
+                    'payment_token'   => $payment->payment_token,
+                    'order_code'      => $order->order_code,
+                    'total_amount'    => $total,
+                    'discount_amount' => $itemDiscount,
+                ];
+            }
+
+            if ($data['payment_method'] === 'bank_transfer') {
+                return [
+                    'payment_method'   => 'bank_transfer',
+                    'payment_id'       => $payment->id,
+                    'amount'           => $total,
+                    'transfer_content' => $payment->idempotency_key,
+                    'bank_account'     => config('payment.bank_account'),
+                    'bank_name'        => config('payment.bank_name'),
+                    'bank_owner'       => config('payment.bank_owner'),
+                    'qr_url'           => $this->generateVietQR($total, $payment->idempotency_key),
+                    'discount_amount'  => $itemDiscount,
+                ];
+            }
+
+            if ($data['payment_method'] === 'momo') {
+                $redirectUrl = $this->buildMomoUrl($payment, $order);
+                return [
+                    'payment_method' => 'momo',
+                    'redirect_url'   => $redirectUrl,
+                    'order_code'     => $order->order_code,
+                ];
+            }
+
+            throw new \Exception('Phương thức thanh toán không hợp lệ');
+        });
     }
 }

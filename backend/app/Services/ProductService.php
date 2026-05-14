@@ -140,6 +140,14 @@ class ProductService
                 throw ProductException::notFound();
             }
 
+            //kiem tra chong sua trung
+            if (isset($data['updated_at'])) {
+                $clientTime = \Carbon\Carbon::parse($data['updated_at']);
+                if (!$product->updated_at->eq($clientTime)) {
+                    throw new \Exception('Sản phẩm vừa được cập nhật bởi người khác. Vui lòng tải lại trang.');
+                }
+            }
+
             $product->update([
                 'name'        => $data['name'],
                 'slug'        => Str::slug($data['name']),
@@ -200,16 +208,24 @@ class ProductService
     }
 
     // xoa
-    public function delete($id)
+    public function delete($id, ?string $updatedAt = null)
     {
-        $product = Product::find($id);
+        return DB::transaction(function () use ($id, $updatedAt) {
+            $product = Product::lockForUpdate()->find($id);
 
-        if (!$product) {
-            throw ProductException::notFound();
-        }
+            if (!$product) {
+                throw ProductException::notFound();
+            }
 
-        $product->delete();
+            if ($updatedAt) {
+                $clientTime = \Carbon\Carbon::parse($updatedAt);
+                if (!$product->updated_at->eq($clientTime)) {
+                    throw new \Exception('Sản phẩm vừa được thay đổi. Vui lòng tải lại trước khi xóa.');
+                }
+            }
 
-        return true;
+            $product->delete();
+            return true;
+        });
     }
 }
