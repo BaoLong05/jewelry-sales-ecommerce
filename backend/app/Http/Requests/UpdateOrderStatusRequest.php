@@ -18,7 +18,7 @@ class UpdateOrderStatusRequest extends FormRequest
             'status' => [
                 'required',
                 'string',
-                'in:pending,paid,shipping,completed,cancelled,confirmed,processing,delivered,refunded',
+                'in:pending,shipping,completed,cancelled,confirmed,processing,delivered,refunded',
             ],
         ];
     }

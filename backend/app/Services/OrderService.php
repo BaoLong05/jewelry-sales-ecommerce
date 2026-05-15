@@ -27,7 +27,7 @@ class OrderService
 
                 $q->orWhereHas('user', function ($uq) use ($search) {
                     $uq->Where('name', 'like', "%{$search}%")
-                        ->orWhere('eamil', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             });
         }
@@ -44,12 +44,12 @@ class OrderService
 
         //tim kiem theo date from
         if (!empty($filter['date_from'])) {
-            $query->where('created_at', $filter['date_from']);
+            $query->whereDate('created_at', '>=', $filter['date_from']);
         }
 
         //tim kiem theo date to
         if (!empty($filter['date_to'])) {
-            $query->where('created_at', $filter['date_to']);
+            $query->whereDate('created_at', '<=', $filter['date_to']);
         }
 
         //phan trang
@@ -76,7 +76,6 @@ class OrderService
 
         $allowedStatus = [
             'pending',
-            'paid',
             'shipping',
             'completed',
             'cancelled',
@@ -92,7 +91,7 @@ class OrderService
         }
 
         //neu don hang dang la trang thai: completed, refuned, canceled thi ko cho cap nhat
-        if (!in_array($order->status, ['completed', 'cancelled', 'refunded'])) {
+        if (in_array($order->status, ['completed', 'cancelled', 'refunded'])) {
             throw new OrderException("Không thể thay đổi trạng thái đơn hàng đang ở trạng thái .'{$order->status}'.");
         }
 
