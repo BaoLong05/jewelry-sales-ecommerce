@@ -15,16 +15,20 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-
+$table->string('order_code')->unique();
             $table->decimal('total_price', 14, 2);
-
+            $table->decimal('discount_amount', 14, 2)->default(0); 
+            $table->string('payment_method');
             $table->enum('status', [
-                'pending',
-                'paid',
-                'shipping',
-                'completed',
-                'cancelled'
-            ]);
+                'pending',    
+                'confirmed',  
+                'processing',   
+                'shipping',     
+                'delivered',    
+                'completed',    
+                'cancelled',   
+                'refunded',     
+            ])->default('pending');
 
             $table->text('address');
 

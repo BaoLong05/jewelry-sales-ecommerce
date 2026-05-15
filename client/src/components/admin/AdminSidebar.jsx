@@ -13,19 +13,19 @@ export default function AdminSidebar() {
         </li>
 
         <li>
-          <Link to="/admin/categories" className="hover:text-amber-400">
+          <Link to="/admin/danh-muc" className="hover:text-amber-400">
             Quản lý danh mục
           </Link>
         </li>
 
         <li>
-          <Link to="/admin/products" className="hover:text-amber-400">
+          <Link to="/admin/san-pham" className="hover:text-amber-400">
             Quản lý sản phẩm
           </Link>
         </li>
 
         <li>
-          <Link to="/admin/orders" className="hover:text-amber-400">
+          <Link to="/admin/don-hang" className="hover:text-amber-400">
             Quản lý đơn hàng
           </Link>
         </li>
