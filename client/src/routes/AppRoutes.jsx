@@ -23,6 +23,7 @@ import Product from "../pages/admin/Product";
 import OrderList from "../pages/admin/OrderList";
 import OrderDetail from "../pages/admin/OrderDetail";
 import RefundManagement from "../pages/admin/RefundManagement";
+import ManageActivity from "../pages/admin/ManageActivity";
 
 // LAYOUT
 import AdminLayout from "../layouts/AdminLayout";
@@ -77,6 +78,7 @@ export default function AppRoutes() {
         <Route path="san-pham" element={<Product />} />
         <Route path="chi-tiet-don-hang/:id" element={<OrderDetail />} />
         <Route path="hoan-hang" element={<RefundManagement />} />
+        <Route path="nhat-ky" element={<ManageActivity />} />
       </Route>
     </Routes>
   );

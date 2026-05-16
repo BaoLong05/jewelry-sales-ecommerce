@@ -34,6 +34,11 @@ export default function AdminSidebar() {
             Quản lý hoàn đơn
           </Link>
         </li>
+        <li>
+          <Link to="/admin/nhat-ky" className="hover:text-amber-400">
+            Nhật ký hệ thống
+          </Link>
+        </li>
       </ul>
     </div>
   );
