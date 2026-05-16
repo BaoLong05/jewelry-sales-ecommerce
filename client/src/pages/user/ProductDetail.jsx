@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { getImageUrl } from "../../utils/image";
 import { createSlug } from "../../utils/slug";
 import { getDiscountInfo } from "../../utils/discount";
+import { getProductReviews } from "../../services/reviewService";
 
 export default function ProductDetail() {
   const { slugId } = useParams();
@@ -18,6 +19,10 @@ export default function ProductDetail() {
   const [activeImg, setActiveImg] = useState(0);
   const [activeTab, setActiveTab] = useState("desc");
   const [quantity, setQuantity] = useState(1);
+
+  const [reviews, setReviews] = useState([]);
+  const [reviewMeta, setReviewMeta] = useState(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -125,6 +130,21 @@ export default function ProductDetail() {
   // DISCOUNT
   const { discountedPrice, originalPrice, badge, hasFreeship, discountAmount } =
     getDiscountInfo(product);
+
+  //review
+  const fetchReviews = async () => {
+    if (!product?.id) return;
+    setReviewLoading(true);
+    try {
+      const res = await getProductReviews(product.id);
+      setReviews(res.data.data);
+      setReviewMeta(res.data.meta);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setReviewLoading(false);
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br from-stone-50 via-amber-50/20 to-stone-100 min-h-screen py-8">
@@ -364,7 +384,10 @@ export default function ProductDetail() {
             ].map(([key, label]) => (
               <button
                 key={key}
-                onClick={() => setActiveTab(key)}
+                onClick={() => {
+                  setActiveTab(key);
+                  if (key === "reviews") fetchReviews();
+                }}
                 className={`pb-3 text-sm font-medium transition-colors relative ${
                   activeTab === key
                     ? "text-amber-700 border-b-2 border-amber-500"
@@ -390,8 +413,106 @@ export default function ProductDetail() {
             )}
 
             {activeTab === "reviews" && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Chưa có đánh giá nào.</p>
+              <div>
+                {/* Tổng quan rating - thiết kế lại theo phong cách sang trọng */}
+                {reviewMeta && (
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 p-5 bg-white rounded-2xl border border-[#E8E2D2] shadow-sm">
+                    <div className="text-center sm:text-left">
+                      <p className="text-4xl font-bold text-amber-600">
+                        {reviewMeta.avg_rating || 0}
+                      </p>
+                      <div className="flex gap-0.5 justify-center sm:justify-start mt-1">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <span
+                            key={s}
+                            className={`text-xl ${s <= Math.round(reviewMeta.avg_rating) ? "text-yellow-400" : "text-gray-200"}`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {reviewMeta.total} đánh giá
+                      </p>
+                    </div>
+                    <div className="flex-1 text-sm text-gray-500 border-l border-[#E8E2D2] pl-4 hidden sm:block">
+                      Khách hàng hài lòng với chất lượng sản phẩm
+                    </div>
+                  </div>
+                )}
+
+                {/* Danh sách đánh giá */}
+                {reviewLoading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-[#E8E2D2]">
+                    <p className="text-4xl mb-3 opacity-50">✍️</p>
+                    <p className="text-sm">
+                      Chưa có đánh giá nào. Hãy là người đầu tiên nhận xét!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-5">
+                    {reviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="bg-white rounded-xl border border-[#E8E2D2] p-5 shadow-sm hover:shadow-md transition"
+                      >
+                        {/* Header: avatar + tên + ngày */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-base">
+                              {review.user?.name?.[0]?.toUpperCase() || "U"}
+                            </div>
+                            <div>
+                              <span className="text-sm font-semibold text-gray-800">
+                                {review.user?.name}
+                              </span>
+                              <span className="text-xs text-gray-400 block mt-0.5">
+                                {review.created_at}
+                              </span>
+                            </div>
+                          </div>
+                          {/* Stars */}
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <span
+                                key={s}
+                                className={`text-base ${s <= review.rating ? "text-yellow-400" : "text-gray-200"}`}
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Nội dung comment */}
+                        {review.comment && (
+                          <p className="text-sm text-gray-700 leading-relaxed mb-3 pl-1 border-l-2 border-amber-200 pl-3 italic">
+                            {review.comment}
+                          </p>
+                        )}
+
+                        {/* Ảnh đính kèm */}
+                        {review.images?.length > 0 && (
+                          <div className="flex gap-2 flex-wrap mt-2">
+                            {review.images.map((url, i) => (
+                              <img
+                                key={i}
+                                src={url}
+                                alt="Ảnh đánh giá"
+                                className="w-16 h-16 object-cover rounded-lg border border-amber-100 cursor-pointer hover:opacity-90 hover:scale-105 transition"
+                                onClick={() => window.open(url, "_blank")}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

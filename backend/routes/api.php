@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\User\UserOrderController;
+use App\Http\Controllers\Api\ReviewController;
 
 
 
@@ -136,3 +137,7 @@ Route::middleware(['auth:sanctum'])->prefix('user')->name('user.')->group(functi
             ->name('items.refund');
     });
 });
+
+
+//product review
+Route::get('/products/{productId}/reviews', [ReviewController::class, 'getByProduct']);
