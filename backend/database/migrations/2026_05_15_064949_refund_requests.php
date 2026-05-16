@@ -25,7 +25,7 @@ return new class extends Migration
             //trang thai xu ly hoan hang
             $table->enum('status', [
                 'pending', //doi admin xu ly
-                'apporoved', //chap nhan yeu cau
+                'approved', //chap nhan yeu cau
                 'rejected', //tu choi hoan hang
                 'refunded' //da hoan tien
             ])->default('pending');
