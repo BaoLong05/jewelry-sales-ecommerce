@@ -16,7 +16,7 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
-  // load cart 
+  // load cart
   const loadCart = () => {
     try {
       const data = JSON.parse(localStorage.getItem("gio-hang")) || [];
@@ -115,7 +115,10 @@ export default function Header() {
 
             {token ? (
               <div className="relative hidden md:block">
-                <div className="w-9 h-9 bg-gradient-to-br from-amber-200 to-amber-300 rounded-full cursor-pointer shadow-inner flex items-center justify-center text-amber-800 font-semibold">
+                <div
+                  onClick={() => navigate("/thong-tin-ca-nhan")}
+                  className="w-9 h-9 bg-gradient-to-br from-amber-200 to-amber-300 rounded-full cursor-pointer shadow-inner flex items-center justify-center text-amber-800 font-semibold"
+                >
                   <svg
                     className="w-5 h-5"
                     fill="none"

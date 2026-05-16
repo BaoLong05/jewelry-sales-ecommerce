@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\User\UserOrderController;
 
 
 
@@ -110,5 +111,28 @@ Route::prefix('v1')->group(function () {
         Route::get('orders', [OrderController::class, 'index']);
         Route::get('orders/{id}', [OrderController::class, 'show']);
         Route::patch('orders/{id}/status', [OrderController::class, 'update']);
+    });
+});
+
+//profile don hang user
+Route::middleware(['auth:sanctum'])->prefix('user')->name('user.')->group(function () {
+
+    Route::prefix('orders')->name('orders.')->group(function () {
+
+        // Danh sách đơn hàng
+        Route::get('/', [UserOrderController::class, 'index'])
+            ->name('index');
+
+        // Chi tiết đơn hàng
+        Route::get('/{orderCode}', [UserOrderController::class, 'show'])
+            ->name('show');
+
+        // Đánh giá sản phẩm theo order item
+        Route::post('/{orderCode}/items/{orderItemId}/review', [UserOrderController::class, 'storeReview'])
+            ->name('items.review');
+
+        // Yêu cầu hoàn hàng theo order item
+        Route::post('/{orderCode}/items/{orderItemId}/refund', [UserOrderController::class, 'storeRefundRequest'])
+            ->name('items.refund');
     });
 });
