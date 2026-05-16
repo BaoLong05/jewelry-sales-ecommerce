@@ -10,6 +10,13 @@ import AddressForm from "../pages/user/AddressForm";
 import Checkout from "../pages/user/Checkout";
 import OrderSuccess from "../pages/user/OrderSuccess";
 
+//profile
+import ProfilePage from "../pages/user/profile/ProfilePage";
+import OrderDetailPage from "../pages/user/profile/OrderDetailPage";
+import OrderListPage from "../pages/user/profile/OrderListPage";
+import RefundModal from "../pages/user/profile/RefundModal";
+import ReviewModal from "../pages/user/profile/ReviewModal";
+
 // ADMIN
 import Category from "../pages/admin/Category";
 import Product from "../pages/admin/Product";
@@ -43,7 +50,11 @@ export default function AppRoutes() {
         <Route path="/dia-chi" element={<AddressForm />} />
         <Route path="/thanh-toan-thanh-cong" element={<OrderSuccess />} />
         <Route path="/thanh-toan" element={<Checkout />} />
-
+        <Route path="/thong-tin-ca-nhan" element={<ProfilePage />}>
+          <Route index element={<OrderListPage />} />                          {/* /thong-tin-ca-nhan */}
+          <Route path="don-hang"          element={<OrderListPage />} />       {/* /thong-tin-ca-nhan/don-hang */}
+          <Route path="don-hang/:orderCode" element={<OrderDetailPage />} />  {/* /thong-tin-ca-nhan/don-hang/DH001 */}
+        </Route>
       </Route>
 
       {/* ================= ADMIN ================= */}
