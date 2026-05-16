@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\User\UserOrderController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\AdminRefundController;
+use App\Http\Controllers\Api\Admin\ActivityLogController;
 
 
 
@@ -147,4 +148,10 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::get('/refund-requests',            [AdminRefundController::class, 'index']);
     Route::post('/refund-requests/{id}/approve', [AdminRefundController::class, 'approve']);
     Route::post('/refund-requests/{id}/reject',  [AdminRefundController::class, 'reject']);
+});
+
+//activity log
+Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    Route::get('/activity-logs', [ActivityLogController::class, 'activityLogs']);
+    Route::get('/login-logs',    [ActivityLogController::class, 'loginLogs']);
 });
