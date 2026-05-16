@@ -22,6 +22,7 @@ import Category from "../pages/admin/Category";
 import Product from "../pages/admin/Product";
 import OrderList from "../pages/admin/OrderList";
 import OrderDetail from "../pages/admin/OrderDetail";
+import RefundManagement from "../pages/admin/RefundManagement";
 
 // LAYOUT
 import AdminLayout from "../layouts/AdminLayout";
@@ -51,9 +52,14 @@ export default function AppRoutes() {
         <Route path="/thanh-toan-thanh-cong" element={<OrderSuccess />} />
         <Route path="/thanh-toan" element={<Checkout />} />
         <Route path="/thong-tin-ca-nhan" element={<ProfilePage />}>
-          <Route index element={<OrderListPage />} />                          {/* /thong-tin-ca-nhan */}
-          <Route path="don-hang"          element={<OrderListPage />} />       {/* /thong-tin-ca-nhan/don-hang */}
-          <Route path="don-hang/:orderCode" element={<OrderDetailPage />} />  {/* /thong-tin-ca-nhan/don-hang/DH001 */}
+          <Route index element={<OrderListPage />} /> {/* /thong-tin-ca-nhan */}
+          <Route path="don-hang" element={<OrderListPage />} />{" "}
+          {/* /thong-tin-ca-nhan/don-hang */}
+          <Route
+            path="don-hang/:orderCode"
+            element={<OrderDetailPage />}
+          />{" "}
+          {/* /thong-tin-ca-nhan/don-hang/DH001 */}
         </Route>
       </Route>
 
@@ -70,6 +76,7 @@ export default function AppRoutes() {
         <Route path="danh-muc" element={<Category />} />
         <Route path="san-pham" element={<Product />} />
         <Route path="chi-tiet-don-hang/:id" element={<OrderDetail />} />
+        <Route path="hoan-hang" element={<RefundManagement />} />
       </Route>
     </Routes>
   );

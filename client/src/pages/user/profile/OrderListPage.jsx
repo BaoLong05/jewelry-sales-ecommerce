@@ -12,7 +12,7 @@ const STATUS_TABS = [
   { key: "delivered",  label: "Đã giao" },
   { key: "completed",  label: "Hoàn thành" },
   { key: "cancelled",  label: "Đã huỷ" },
-  { key: "refunded",   label: "Hoàn tiền" },
+  { key: "refunded",   label: "Đã hoàn tiền" },
 ];
 
 export default function OrderListPage() {
@@ -150,6 +150,31 @@ export default function OrderListPage() {
                       {order.status_label}
                     </span>
                   </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-amber-50/30 border-b border-[#F0EDE5]">
+  <div className="flex items-center gap-2 flex-wrap">
+    <span className="text-xs text-gray-500">Mã đơn:</span>
+    <span className="text-xs font-mono font-semibold text-gray-700">{order.order_code}</span>
+    {/* Badge trạng thái refund */}
+    {order.refund_status === "rejected" && (
+      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-red-100 text-red-600">
+        ❌ Từ chối
+      </span>
+    )}
+    {order.refund_status === "pending" && (
+      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-600">
+        ⏳ Đang chờ duyệt hoàn hàng
+      </span>
+    )}
+    {order.refund_status === "approved" && (
+      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-green-100 text-green-600">
+        ✅ Chấp nhận
+      </span>
+    )}
+  </div>
+  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${ORDER_STATUS_COLOR[order.status]}`}>
+    {order.status_label}
+  </span>
+</div>
 
                   {/* Items preview */}
                   <div className="px-4 py-3">

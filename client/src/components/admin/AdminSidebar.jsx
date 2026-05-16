@@ -29,6 +29,11 @@ export default function AdminSidebar() {
             Quản lý đơn hàng
           </Link>
         </li>
+        <li>
+          <Link to="/admin/hoan-hang" className="hover:text-amber-400">
+            Quản lý hoàn đơn
+          </Link>
+        </li>
       </ul>
     </div>
   );

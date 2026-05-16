@@ -1,7 +1,7 @@
 import { useNavigate, Link, NavLink, Outlet } from "react-router-dom";
 
 const NAV_ITEMS = [
-  { to: "orders", label: "Đơn hàng của tôi", icon: "📦" },
+  { to: "don-hang", label: "Đơn hàng của tôi", icon: "📦" },
   // bổ sung thêm các phần mật khẩu, thông tin sau
 ];
 

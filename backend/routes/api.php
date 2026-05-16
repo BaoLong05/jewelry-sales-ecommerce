@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\User\UserOrderController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\AdminRefundController;
 
 
 
@@ -141,3 +142,9 @@ Route::middleware(['auth:sanctum'])->prefix('user')->name('user.')->group(functi
 
 //product review
 Route::get('/products/{productId}/reviews', [ReviewController::class, 'getByProduct']);
+//admin refund
+Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    Route::get('/refund-requests',            [AdminRefundController::class, 'index']);
+    Route::post('/refund-requests/{id}/approve', [AdminRefundController::class, 'approve']);
+    Route::post('/refund-requests/{id}/reject',  [AdminRefundController::class, 'reject']);
+});

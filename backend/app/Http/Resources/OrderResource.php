@@ -40,6 +40,15 @@ class OrderResource extends JsonResource
                 'can_review'        => $this->canReview(),
                 'can_request_refund' => $this->canRequestRefund(),
             ],
+            'refund_status' => $this->items
+                ->map(fn($item) => $item->loaded_refund?->status)
+                ->filter()
+                ->first(),
+
+            'refund_note' => $this->items
+                ->map(fn($item) => $item->loaded_refund?->admin_note)
+                ->filter()
+                ->first(),
         ];
     }
 }
