@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\AdminRefundController;
 use App\Http\Controllers\Api\Admin\ActivityLogController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
+use App\Http\Controllers\Api\Admin\AdminDiscountController;
 
 
 
@@ -73,6 +74,7 @@ Route::prefix('v1')->group(function () {
         Route::match(['PUT', 'POST'], 'products/{id}', [ProductController::class, 'update']);
         Route::delete('products/{id}', [ProductController::class, 'destroy']);
         Route::get('dashboard', [AdminDashboardController::class, 'index']);
+        Route::apiResource('discounts', AdminDiscountController::class);
     });
 });
 

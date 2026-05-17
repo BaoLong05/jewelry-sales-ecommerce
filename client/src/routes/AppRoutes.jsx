@@ -25,6 +25,7 @@ import OrderDetail from "../pages/admin/OrderDetail";
 import RefundManagement from "../pages/admin/RefundManagement";
 import ManageActivity from "../pages/admin/ManageActivity";
 import Dashboard from "../pages/admin/Dashboard";
+import DiscountManagement from "../pages/admin/DiscountManagement";
 
 // LAYOUT
 import AdminLayout from "../layouts/AdminLayout";
@@ -81,6 +82,7 @@ export default function AppRoutes() {
         <Route path="chi-tiet-don-hang/:id" element={<OrderDetail />} />
         <Route path="hoan-hang" element={<RefundManagement />} />
         <Route path="nhat-ky" element={<ManageActivity />} />
+        <Route path="giam-gia" element={<DiscountManagement />} />
       </Route>
     </Routes>
   );

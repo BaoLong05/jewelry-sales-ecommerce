@@ -1,12 +1,13 @@
 import { NavLink } from "react-router-dom";
 
 const NAV_ITEMS = [
-  { to: "/admin/thong-ke",  label: "Dashboard",          icon: "📊" },
+  { to: "/admin/thong-ke",  label: "Thống kê",          icon: "📊" },
   { to: "/admin/danh-muc",  label: "Quản lý danh mục",   icon: "🗂️" },
   { to: "/admin/san-pham",  label: "Quản lý sản phẩm",   icon: "📦" },
   { to: "/admin/don-hang",  label: "Quản lý đơn hàng",   icon: "🛍️" },
   { to: "/admin/hoan-hang", label: "Quản lý hoàn đơn",   icon: "↩️" },
   { to: "/admin/nhat-ky",   label: "Nhật ký hệ thống",   icon: "📋" },
+  { to: "/admin/giam-gia", label: "Quản lý giảm giá", icon: "🎫" },
 ];
 
 export default function AdminSidebar() {
