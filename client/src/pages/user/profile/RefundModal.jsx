@@ -8,6 +8,7 @@ export default function RefundModal({ orderCode, item, onClose, onSuccess }) {
   const [error, setError]     = useState("");
 
 const handleSubmit = async () => {
+  document.title = "Yêu cầu hoàn hàng";
   if (reason.trim().length < 20) {
     setError("Lý do phải có ít nhất 20 ký tự.");
     return;

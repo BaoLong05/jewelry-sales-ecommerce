@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { verifyPaymentToken } from "../../services/checkoutService";
 
 export default function OrderSuccess() {
+  document.title = "Kết quả mua hàng";
   const { state } = useLocation();
   const navigate = useNavigate();
   const [valid, setValid] = useState(null);

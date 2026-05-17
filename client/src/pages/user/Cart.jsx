@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 export default function Cart() {
+  document.title = "Giỏ hàng";
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);

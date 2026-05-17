@@ -6,6 +6,7 @@ const NAV_ITEMS = [
 ];
 
 export default function ProfilePage() {
+  document.title = "Thông tin cá nhân";
   const navigate = useNavigate();
 
   const handleLogout = () => {

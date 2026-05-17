@@ -1,29 +1,34 @@
 import { useState, useEffect, useCallback } from "react";
-import { getRefundRequests, approveRefund, rejectRefund } from "../../services/adminRefundService";
+import {
+  getRefundRequests,
+  approveRefund,
+  rejectRefund,
+} from "../../services/adminRefundService";
 import { toast } from "react-toastify";
 
 const STATUS_TABS = [
-  { key: "",         label: "Tất cả" },
-  { key: "pending",  label: "Chờ duyệt" },
+  { key: "", label: "Tất cả" },
+  { key: "pending", label: "Chờ duyệt" },
   { key: "approved", label: "Đã chấp nhận" },
   { key: "rejected", label: "Đã từ chối" },
   { key: "refunded", label: "Đã hoàn tiền" },
 ];
 
 const STATUS_COLOR = {
-  pending:  "bg-yellow-100 text-yellow-700",
+  pending: "bg-yellow-100 text-yellow-700",
   approved: "bg-green-100 text-green-700",
   rejected: "bg-red-100 text-red-700",
   refunded: "bg-gray-100 text-gray-600",
 };
 
 export default function RefundManagement() {
-  const [requests, setRequests]   = useState([]);
-  const [meta, setMeta]           = useState(null);
-  const [loading, setLoading]     = useState(false);
+  document.title = "Quản lý hoàn đơn";
+  const [requests, setRequests] = useState([]);
+  const [meta, setMeta] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("pending");
-  const [selected, setSelected]   = useState(null);  
-  const [action, setAction]       = useState("");
+  const [selected, setSelected] = useState(null);
+  const [action, setAction] = useState("");
   const [adminNote, setAdminNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,7 +45,9 @@ export default function RefundManagement() {
     }
   }, [activeTab]);
 
-  useEffect(() => { fetchRequests(); }, [fetchRequests]);
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   const openModal = (req, act) => {
     setSelected(req);
@@ -79,11 +86,13 @@ export default function RefundManagement() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold text-gray-800 mb-6">Quản lý hoàn hàng</h1>
+      <h1 className="text-xl font-bold text-gray-800 mb-6">
+        Quản lý hoàn hàng
+      </h1>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        {STATUS_TABS.map(tab => (
+        {STATUS_TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -102,7 +111,9 @@ export default function RefundManagement() {
             <div className="w-7 h-7 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : requests.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">Không có yêu cầu nào</div>
+          <div className="text-center py-16 text-gray-400">
+            Không có yêu cầu nào
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
@@ -117,34 +128,54 @@ export default function RefundManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {requests.map(req => (
+              {requests.map((req) => (
                 <tr key={req.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       {req.product?.thumbnail && (
-                        <img src={req.product.thumbnail} alt="" className="w-10 h-10 rounded-lg object-cover border border-gray-100" />
+                        <img
+                          src={req.product.thumbnail}
+                          alt=""
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-100"
+                        />
                       )}
-                      <span className="text-gray-700 max-w-[150px] truncate">{req.product?.name}</span>
+                      <span className="text-gray-700 max-w-[150px] truncate">
+                        {req.product?.name}
+                      </span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-gray-700 font-medium">{req.user?.name}</p>
+                    <p className="text-gray-700 font-medium">
+                      {req.user?.name}
+                    </p>
                     <p className="text-xs text-gray-400">{req.user?.email}</p>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{req.order?.order_code}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {req.order?.order_code}
+                  </td>
                   <td className="px-4 py-3 max-w-[200px]">
                     <p className="text-gray-600 truncate">{req.reason}</p>
                     {req.images?.length > 0 && (
                       <div className="flex gap-1 mt-1">
                         {req.images.slice(0, 3).map((url, i) => (
-                          <img key={i} src={url} alt="" className="w-8 h-8 rounded object-cover cursor-pointer" onClick={() => window.open(url, "_blank")} />
+                          <img
+                            key={i}
+                            src={url}
+                            alt=""
+                            className="w-8 h-8 rounded object-cover cursor-pointer"
+                            onClick={() => window.open(url, "_blank")}
+                          />
                         ))}
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-400 text-xs">{req.created_at}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs">
+                    {req.created_at}
+                  </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[req.status]}`}>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[req.status]}`}
+                    >
                       {req.status_label}
                     </span>
                   </td>
@@ -166,7 +197,10 @@ export default function RefundManagement() {
                       </div>
                     )}
                     {req.status !== "pending" && req.admin_note && (
-                      <p className="text-xs text-gray-400 italic max-w-[150px] truncate" title={req.admin_note}>
+                      <p
+                        className="text-xs text-gray-400 italic max-w-[150px] truncate"
+                        title={req.admin_note}
+                      >
                         {req.admin_note}
                       </p>
                     )}
@@ -183,10 +217,13 @@ export default function RefundManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
             <h2 className="text-base font-bold text-gray-800 mb-1">
-              {action === "approve" ? "✅ Xác nhận duyệt hoàn hàng" : "❌ Từ chối hoàn hàng"}
+              {action === "approve"
+                ? "✅ Xác nhận duyệt hoàn hàng"
+                : "❌ Từ chối hoàn hàng"}
             </h2>
             <p className="text-sm text-gray-500 mb-4">
-              Sản phẩm: <strong>{selected.product?.name}</strong><br />
+              Sản phẩm: <strong>{selected.product?.name}</strong>
+              <br />
               Khách hàng: <strong>{selected.user?.name}</strong>
             </p>
 
@@ -195,19 +232,27 @@ export default function RefundManagement() {
             </p>
 
             <label className="text-xs text-gray-500 mb-1 block">
-              Ghi chú Admin {action === "reject" && <span className="text-red-400">* (bắt buộc)</span>}
+              Ghi chú Admin{" "}
+              {action === "reject" && (
+                <span className="text-red-400">* (bắt buộc)</span>
+              )}
             </label>
             <textarea
               value={adminNote}
               onChange={(e) => setAdminNote(e.target.value)}
-              placeholder={action === "approve" ? "Ghi chú thêm (không bắt buộc)..." : "Lý do từ chối (bắt buộc)..."}
+              placeholder={
+                action === "approve"
+                  ? "Ghi chú thêm (không bắt buộc)..."
+                  : "Lý do từ chối (bắt buộc)..."
+              }
               rows={3}
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
 
             {action === "approve" && (
               <p className="text-xs text-orange-500 mt-2">
-                ⚠️ Sau khi duyệt, trạng thái đơn hàng sẽ chuyển sang "Đã hoàn tiền".
+                ⚠️ Sau khi duyệt, trạng thái đơn hàng sẽ chuyển sang "Đã hoàn
+                tiền".
               </p>
             )}
 
@@ -224,7 +269,11 @@ export default function RefundManagement() {
                 className={`flex-1 py-2.5 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50
                   ${action === "approve" ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"}`}
               >
-                {submitting ? "Đang xử lý..." : action === "approve" ? "Xác nhận duyệt" : "Xác nhận từ chối"}
+                {submitting
+                  ? "Đang xử lý..."
+                  : action === "approve"
+                    ? "Xác nhận duyệt"
+                    : "Xác nhận từ chối"}
               </button>
             </div>
           </div>

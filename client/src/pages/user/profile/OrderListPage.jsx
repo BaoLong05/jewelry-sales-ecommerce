@@ -16,6 +16,7 @@ const STATUS_TABS = [
 ];
 
 export default function OrderListPage() {
+  document.title = "Danh sách đơn hàng của bạn";
   const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);

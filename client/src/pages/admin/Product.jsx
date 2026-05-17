@@ -10,6 +10,7 @@ import { getCategories } from "../../services/categoryService";
 import { toast } from "react-toastify";
 
 export default function Product() {
+  document.title = "Quản lý sản phẩm";
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [keyword, setKeyword] = useState("");

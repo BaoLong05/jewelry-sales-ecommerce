@@ -7,6 +7,7 @@ import { createSlug } from "../../utils/slug";
 import { getDiscountInfo } from "../../utils/discount";
 
 export default function ProductList() {
+  document.title = "Sản phẩm";
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [keyword, setKeyword] = useState("");
