@@ -19,6 +19,7 @@ const parseAddress = (address) => {
 };
 
 export default function OrderDetail() {
+    document.title = "Chi tiết đơn hàng";
     const { id } = useParams();
 
     const [order, setOrder] = useState(null);

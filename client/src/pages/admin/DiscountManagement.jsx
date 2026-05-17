@@ -32,6 +32,7 @@ const EMPTY_FORM = {
 };
 
 export default function DiscountManagement() {
+    document.title = "Quản lý giảm giá";
   const [discounts, setDiscounts] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(false);

@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Login() {
+  document.title = "Đăng nhập";
   const [form, setForm] = useState({ email: "", password: "" });
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();

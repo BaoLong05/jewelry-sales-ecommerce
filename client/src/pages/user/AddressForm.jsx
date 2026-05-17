@@ -3,6 +3,7 @@ import { getAddresses, createAddress } from "../../services/addressService";
 import { toast } from "react-toastify";
 
 export default function AddressForm({ onSelect, selectedId }) {
+  document.title = "Địa chỉ mua hàng";
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);

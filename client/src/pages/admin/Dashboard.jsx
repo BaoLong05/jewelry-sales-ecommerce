@@ -72,6 +72,7 @@ function SectionTitle({ children }) {
 }
 
 export default function Dashboard() {
+    document.title = "Thống kê";
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 

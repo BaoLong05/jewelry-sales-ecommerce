@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Register() {
+  document.title = "Đăng ký";
   const [form, setForm] = useState({});
   const navigate = useNavigate();
 

@@ -9,6 +9,7 @@ export default function ReviewModal({ orderCode, item, onClose, onSuccess }) {
   const [error, setError]     = useState("");
 
   const handleSubmit = async () => {
+    document.title = "Đánh giá sản phẩm";
     setLoading(true);
     setError("");
     try {

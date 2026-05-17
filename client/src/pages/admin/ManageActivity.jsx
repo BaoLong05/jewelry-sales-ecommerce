@@ -48,6 +48,7 @@ export default function ManageActivity() {
   const [filterUserId, setFilterUserId] = useState("");
 
   const fetchLogs = useCallback(async () => {
+    document.title = "Quản lý hoạt động hệ thống";
     setLoading(true);
     try {
       const params = { page, per_page: 20 };

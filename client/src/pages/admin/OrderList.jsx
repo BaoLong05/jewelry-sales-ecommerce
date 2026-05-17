@@ -11,6 +11,7 @@ import {
 } from "../../utils/orderStatus";
 
 export default function OrderList() {
+    document.title = "Quản lý đơn hàng";
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState(null);

@@ -9,6 +9,7 @@ import { getDiscountInfo } from "../../utils/discount";
 import { getProductReviews } from "../../services/reviewService";
 
 export default function ProductDetail() {
+  document.title = "Chi tiết sản phẩm";
   const { slugId } = useParams();
   const id = slugId.split("-").at(-1);
 

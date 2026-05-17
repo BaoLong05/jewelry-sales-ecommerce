@@ -6,6 +6,7 @@ import ReviewModal from "./ReviewModal";
 import RefundModal from "./RefundModal";
 
 export default function OrderDetailPage() {
+  document.title = "Chi tiết đơn hàng của bạn";
   const { orderCode } = useParams();
   const navigate = useNavigate();
 

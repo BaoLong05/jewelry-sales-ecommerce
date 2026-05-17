@@ -8,6 +8,7 @@ import {
 import { toast } from "react-toastify";
 
 export default function Category() {
+  document.title = "Quản lý danh mục";
   const [categories, setCategories] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [form, setForm] = useState({ name: "" });
@@ -92,7 +93,7 @@ export default function Category() {
           </div>
         </div>
       ),
-      { autoClose: false, closeOnClick: false }
+      { autoClose: false, closeOnClick: false },
     );
   };
 
@@ -113,7 +114,10 @@ export default function Category() {
         <h2 className="text-lg font-semibold text-gray-800 mb-4">
           {editing ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
         </h2>
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row gap-3"
+        >
           <input
             type="text"
             placeholder="Tên danh mục (VD: Nhẫn cưới, Dây chuyền, ...)"
@@ -172,14 +176,18 @@ export default function Category() {
 
       {/* Bảng danh mục */}
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Đang tải dữ liệu...</div>
+        <div className="text-center py-20 text-gray-400">
+          Đang tải dữ liệu...
+        </div>
       ) : (
         <div className="border border-gray-100 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">ID</th>
+                  <th className="text-left px-4 py-3 text-gray-500 font-medium">
+                    ID
+                  </th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">
                     Tên danh mục
                   </th>

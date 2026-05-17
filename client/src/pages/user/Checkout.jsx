@@ -22,6 +22,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function Checkout() {
+  document.title = "Thanh toán";
   const { state } = useLocation();
   const navigate = useNavigate();
 
