@@ -24,6 +24,7 @@ import OrderList from "../pages/admin/OrderList";
 import OrderDetail from "../pages/admin/OrderDetail";
 import RefundManagement from "../pages/admin/RefundManagement";
 import ManageActivity from "../pages/admin/ManageActivity";
+import Dashboard from "../pages/admin/Dashboard";
 
 // LAYOUT
 import AdminLayout from "../layouts/AdminLayout";
@@ -73,6 +74,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
+        <Route path="thong-ke" element={<Dashboard />} />
         <Route path="don-hang" element={<OrderList />} />
         <Route path="danh-muc" element={<Category />} />
         <Route path="san-pham" element={<Product />} />

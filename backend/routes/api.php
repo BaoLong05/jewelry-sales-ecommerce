@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\User\UserOrderController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\AdminRefundController;
 use App\Http\Controllers\Api\Admin\ActivityLogController;
+use App\Http\Controllers\Api\Admin\AdminDashboardController;
 
 
 
@@ -71,6 +72,7 @@ Route::prefix('v1')->group(function () {
         Route::post('products', [ProductController::class, 'store']);
         Route::match(['PUT', 'POST'], 'products/{id}', [ProductController::class, 'update']);
         Route::delete('products/{id}', [ProductController::class, 'destroy']);
+        Route::get('dashboard', [AdminDashboardController::class, 'index']);
     });
 });
 
