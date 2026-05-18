@@ -32,6 +32,9 @@ import UserLayout  from "../layouts/UserLayout";
 // GUARDS
 import ProtectedRoute, { CheckoutGuard } from "./ProtectedRoute";
 
+// CHATBOT — chỉ dùng ở trang sản phẩm
+import ChatBotAI from "../pages/ChatBotAI ";
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -42,22 +45,41 @@ export default function AppRoutes() {
       {/* USER */}
       <Route element={<UserLayout />}>
         <Route index element={<Navigate to="/san-pham" replace />} />
-        <Route path="/"                element={<Navigate to="/san-pham" replace />} />
+        <Route path="/" element={<Navigate to="/san-pham" replace />} />
+        <Route
+          path="/san-pham"
+          element={
+            <>
+              <ProductList />
+              <ChatBotAI title="Trợ lý AI" placeholder="Nhập tin nhắn..." />
+            </>
+          }
+        />
+        <Route
+          path="/san-pham/:slugId"
+          element={
+            <>
+              <ProductDetail />
+              <ChatBotAI title="Trợ lý AI" placeholder="Nhập tin nhắn..." />
+            </>
+          }
+        />
 
-        <Route path="/san-pham"         element={<ProductList />} />
-        <Route path="/san-pham/:slugId" element={<ProductDetail />} />
-        <Route path="/gio-hang"         element={<Cart />} />
+        <Route path="/gio-hang" element={<Cart />} />
 
-        <Route path="/dia-chi"
+        <Route
+          path="/dia-chi"
           element={<CheckoutGuard><Checkout /></CheckoutGuard>}
         />
-        <Route path="/thanh-toan"
+        <Route
+          path="/thanh-toan"
           element={<CheckoutGuard><Checkout /></CheckoutGuard>}
         />
 
         <Route path="/thanh-toan-thanh-cong" element={<OrderSuccess />} />
 
-        <Route path="/thong-tin-ca-nhan"
+        <Route
+          path="/thong-tin-ca-nhan"
           element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
         >
           <Route index                      element={<OrderListPage />} />
@@ -67,7 +89,8 @@ export default function AppRoutes() {
       </Route>
 
       {/* ADMIN */}
-      <Route path="/admin"
+      <Route
+        path="/admin"
         element={
           <ProtectedRoute roles={["admin", "staff"]}>
             <AdminLayout />

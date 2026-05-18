@@ -16,9 +16,12 @@ use App\Http\Controllers\Api\AdminRefundController;
 use App\Http\Controllers\Api\Admin\ActivityLogController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminDiscountController;
+use App\Http\Controllers\Api\ChatBotAiController;
 
 
 
+//chatbotAi
+Route::post('/chatbot', [ChatBotAiController::class, 'chat']);
 
 //api đăng nhập, đăng ký, lấy user hiện tại, đăng xuất
 Route::prefix('auth')->group(function () {
