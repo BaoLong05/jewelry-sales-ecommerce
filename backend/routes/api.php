@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminDiscountController;
 use App\Http\Controllers\Api\ChatBotAiController;
 use App\Http\Controllers\Api\UserProfileController;
+use App\Http\Controllers\Api\ChatSupportController;
 
 
 
@@ -99,6 +100,8 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [UserProfileController::class, 'show']);
         Route::put('/profile', [UserProfileController::class, 'update']);
+        Route::get('/support-chat', [ChatSupportController::class, 'userMessages']);
+        Route::post('/support-chat/messages', [ChatSupportController::class, 'userSend']);
 
         //them xoa sua dia chi
         Route::get('/addresses',    [AddressController::class, 'index']);
@@ -165,4 +168,10 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::get('/activity-logs', [ActivityLogController::class, 'activityLogs']);
     Route::get('/login-logs',    [ActivityLogController::class, 'loginLogs']);
+});
+
+Route::middleware(['auth:sanctum', 'role:admin|staff'])->prefix('admin')->group(function () {
+    Route::get('/support-conversations', [ChatSupportController::class, 'adminConversations']);
+    Route::get('/support-conversations/{conversation}', [ChatSupportController::class, 'adminMessages']);
+    Route::post('/support-conversations/{conversation}/messages', [ChatSupportController::class, 'adminSend']);
 });
