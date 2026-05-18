@@ -14,6 +14,7 @@ import OrderSuccess  from "../pages/user/OrderSuccess";
 import ProfilePage     from "../pages/user/profile/ProfilePage";
 import OrderDetailPage from "../pages/user/profile/OrderDetailPage";
 import OrderListPage   from "../pages/user/profile/OrderListPage";
+import ProfileInfoPage from "../pages/user/profile/ProfileInfoPage";
 
 // ADMIN
 import Category           from "../pages/admin/Category";
@@ -82,7 +83,8 @@ export default function AppRoutes() {
           path="/thong-tin-ca-nhan"
           element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
         >
-          <Route index                      element={<OrderListPage />} />
+          <Route index                      element={<ProfileInfoPage />} />
+          <Route path="tai-khoan"           element={<ProfileInfoPage />} />
           <Route path="don-hang"            element={<OrderListPage />} />
           <Route path="don-hang/:orderCode" element={<OrderDetailPage />} />
         </Route>

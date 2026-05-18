@@ -1,23 +1,29 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { getImageUrl } from "../../utils/image";
 import { createSlug } from "../../utils/slug";
 import { getDiscountInfo } from "../../utils/discount";
 
 export default function ProductList() {
   document.title = "Sản phẩm";
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(searchParams.get("search") || "");
   const [activeCategory, setActiveCategory] = useState("");
   const [sort, setSort] = useState("latest");
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
 
 
-  useEffect(() => { fetchData(); }, [page, activeCategory, sort]);
+  useEffect(() => {
+    setKeyword(searchParams.get("search") || "");
+    setPage(1);
+  }, [searchParams]);
+
+  useEffect(() => { fetchData(); }, [page, activeCategory, sort, keyword]);
 
   const fetchData = async () => {
     const res = await getProducts({ search: keyword, category_id: activeCategory, sort, page });
@@ -35,7 +41,12 @@ export default function ProductList() {
 
   useEffect(() => { fetchCategories(); }, []);
 
-  const handleSearch = () => { setPage(1); fetchData(); };
+  const handleSearch = () => {
+    const params = {};
+    if (keyword.trim()) params.search = keyword.trim();
+    setSearchParams(params);
+    setPage(1);
+  };
 
   return (
     <div className="bg-gradient-to-br from-stone-50 via-amber-50/20 to-stone-100 min-h-screen py-8">
