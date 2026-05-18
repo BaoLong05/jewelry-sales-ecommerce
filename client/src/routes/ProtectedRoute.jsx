@@ -1,17 +1,47 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
-export default function ProtectedRoute({ children, roles }) {
-  const user = JSON.parse(localStorage.getItem("user"));
+function CheckoutGuard({ children }) {
+  const location = useLocation();
 
-  // chua login
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  const hasValidState =
+    location.state?.selectedCartIds?.length > 0 || location.state?.buyNowItem;
 
-  // kiem tra url
-  if (roles && !roles.includes(user.roles[0].name)) {
-    return <Navigate to="/" />;
+  if (!hasValidState) {
+    return <Navigate to="/gio-hang" replace />;
   }
 
   return children;
 }
+function OrderSuccessGuard({ children }) {
+  const location = useLocation();
+
+  const hasOrderCode = !!location.state?.orderCode;
+
+  if (!hasOrderCode) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+export function ProtectedRoute({ children, roles }) {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  // Chưa login
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (roles) {
+    const userRoles = user.roles?.map((r) => r.name) ?? [];
+    const hasRole = roles.some((r) => userRoles.includes(r));
+    if (!hasRole) {
+      return <Navigate to="/" replace />;
+    }
+  }
+
+  return children;
+}
+
+export { CheckoutGuard, OrderSuccessGuard };
+export default ProtectedRoute;

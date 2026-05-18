@@ -16,7 +16,6 @@ export default function ProductList() {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
 
-  // ❌ XÓA dòng này khỏi đây: const { discountedPrice, originalPrice, badge } = getDiscountInfo(p);
 
   useEffect(() => { fetchData(); }, [page, activeCategory, sort]);
 
