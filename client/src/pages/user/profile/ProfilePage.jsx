@@ -1,8 +1,8 @@
-import { useNavigate, Link, NavLink, Outlet } from "react-router-dom";
+import { useNavigate, NavLink, Outlet } from "react-router-dom";
 
 const NAV_ITEMS = [
-  { to: "don-hang", label: "Đơn hàng của tôi", icon: "📦" },
-  // bổ sung thêm các phần mật khẩu, thông tin sau
+  { to: "tai-khoan", label: "Thông tin tài khoản", icon: "U" },
+  { to: "don-hang", label: "Đơn hàng của tôi", icon: "O" },
 ];
 
 export default function ProfilePage() {
@@ -11,6 +11,7 @@ export default function ProfilePage() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
@@ -18,10 +19,8 @@ export default function ProfilePage() {
     <div className="bg-[#FEFCF3] min-h-screen py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar */}
           <aside className="md:w-64 flex-shrink-0">
             <div className="bg-white rounded-2xl border border-[#E8E2D2] shadow-sm overflow-hidden sticky top-24">
-              {/* Avatar */}
               <div className="px-5 py-5 border-b border-[#F0EDE5]">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-semibold text-base shadow-sm">
@@ -34,7 +33,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Navigation */}
               <nav className="py-2">
                 {NAV_ITEMS.map((item) => (
                   <NavLink
@@ -48,24 +46,26 @@ export default function ProfilePage() {
                       }`
                     }
                   >
-                    <span className="text-base">{item.icon}</span>
+                    <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold flex items-center justify-center">
+                      {item.icon}
+                    </span>
                     <span>{item.label}</span>
                   </NavLink>
                 ))}
 
-                {/* Đăng xuất */}
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors border-t border-[#F0EDE5] mt-2"
                 >
-                  <span className="text-base">🚪</span>
+                  <span className="w-5 h-5 rounded-full bg-rose-50 text-rose-500 text-xs font-semibold flex items-center justify-center">
+                    X
+                  </span>
                   <span>Đăng xuất</span>
                 </button>
               </nav>
             </div>
           </aside>
 
-          {/* Main content */}
           <main className="flex-1 min-w-0">
             <div className="bg-white rounded-2xl border border-[#E8E2D2] shadow-sm p-6">
               <Outlet />

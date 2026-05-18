@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Admin\ActivityLogController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminDiscountController;
 use App\Http\Controllers\Api\ChatBotAiController;
+use App\Http\Controllers\Api\UserProfileController;
 
 
 
@@ -96,6 +97,9 @@ Route::prefix('v1')->group(function () {
 //checkout 
 Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/profile', [UserProfileController::class, 'show']);
+        Route::put('/profile', [UserProfileController::class, 'update']);
+
         //them xoa sua dia chi
         Route::get('/addresses',    [AddressController::class, 'index']);
         Route::post('/addresses',   [AddressController::class, 'store']);
