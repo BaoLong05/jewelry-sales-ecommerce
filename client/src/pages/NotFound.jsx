@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 export default function NotFound() {
+    document.title= "Không tìm thấy"
   const navigate = useNavigate();
 
   return (
