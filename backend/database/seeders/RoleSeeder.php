@@ -7,15 +7,10 @@ use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        Role::insert([
-            ['name' => 'admin'],
-            ['name' => 'staff'],
-            ['name' => 'user'],
-        ]);
+        foreach (['admin', 'staff', 'user'] as $role) {
+            Role::updateOrCreate(['name' => $role], ['name' => $role]);
+        }
     }
 }
