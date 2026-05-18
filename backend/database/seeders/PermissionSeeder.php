@@ -2,34 +2,36 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        Permission::insert([
-            // PRODUCT
+        $permissions = [
             ['name' => 'view_product', 'module' => 'product'],
             ['name' => 'create_product', 'module' => 'product'],
             ['name' => 'update_product', 'module' => 'product'],
             ['name' => 'delete_product', 'module' => 'product'],
-
-            // ORDER
+            ['name' => 'category.create', 'module' => 'category'],
+            ['name' => 'category.update', 'module' => 'category'],
+            ['name' => 'category.delete', 'module' => 'category'],
             ['name' => 'manage_orders', 'module' => 'order'],
-
-            // USER
             ['name' => 'manage_users', 'module' => 'user'],
-        ]);
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::updateOrCreate(
+                ['name' => $permission['name']],
+                ['module' => $permission['module']]
+            );
+        }
 
         $admin = Role::where('name', 'admin')->first();
-        $permissions = Permission::pluck('id');
-
-        $admin->permissions()->sync($permissions);
+        if ($admin) {
+            $admin->permissions()->sync(Permission::pluck('id'));
+        }
     }
 }

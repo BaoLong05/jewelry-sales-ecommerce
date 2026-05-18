@@ -3,38 +3,49 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\Role;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $admin = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('123123'),
-        ]);
+        $users = [
+            [
+                'name' => 'Admin',
+                'email' => 'admin@gmail.com',
+                'phone' => '0901000001',
+                'address' => 'Lumina Admin Office',
+                'role' => 'admin',
+            ],
+            [
+                'name' => 'Staff',
+                'email' => 'staff@gmail.com',
+                'phone' => '0901000002',
+                'address' => 'Lumina Store',
+                'role' => 'staff',
+            ],
+            [
+                'name' => 'User',
+                'email' => 'user@gmail.com',
+                'phone' => '0901000003',
+                'address' => '123 Nguyễn Trãi, Quận 1, TP. Hồ Chí Minh',
+                'role' => 'user',
+            ],
+        ];
 
-        $staff = User::create([
-            'name' => 'Staff',
-            'email' => 'staff@gmail.com',
-            'password' => Hash::make('123123'),
-        ]);
+        foreach ($users as $item) {
+            $user = User::updateOrCreate(
+                ['email' => $item['email']],
+                [
+                    'name' => $item['name'],
+                    'phone' => $item['phone'],
+                    'address' => $item['address'],
+                    'password' => Hash::make('123123'),
+                ]
+            );
 
-        $user = User::create([
-            'name' => 'User',
-            'email' => 'user@gmail.com',
-            'password' => Hash::make('123123'),
-        ]);
-
-        // Gán role
-        $admin->assignRole('admin');
-        $staff->assignRole('staff');
-        $user->assignRole('user');
+            $user->assignRole($item['role']);
+        }
     }
 }
