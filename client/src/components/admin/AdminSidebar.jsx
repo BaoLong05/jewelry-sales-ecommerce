@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const NAV_ITEMS = [
   { to: "/admin/thong-ke", label: "Thống kê", icon: "TK" },
@@ -12,6 +13,14 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminSidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
   return (
     <div className="w-56 flex-shrink-0 h-screen sticky top-0 bg-gray-900 text-white flex flex-col">
       <div className="px-5 py-5 border-b border-gray-700">
@@ -38,6 +47,17 @@ export default function AdminSidebar() {
           </NavLink>
         ))}
       </nav>
+      <div className="border-t border-gray-700 p-3">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-rose-300 hover:bg-rose-500/10 hover:text-rose-200 transition-colors"
+        >
+          <span className="w-7 h-7 rounded bg-rose-500/10 text-[11px] font-bold flex items-center justify-center">
+            DX
+          </span>
+          <span>Đăng xuất</span>
+        </button>
+      </div>
     </div>
   );
 }

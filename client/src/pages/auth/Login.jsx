@@ -26,7 +26,7 @@ export default function Login() {
 
       // kiem tra quyen khi login
       if (["admin", "staff"].includes(role)) {
-        navigate("/admin/categories");
+        navigate("/admin/");
       } else {
         navigate("/");
       }
@@ -58,7 +58,7 @@ export default function Login() {
           const role = user.roles?.[0]?.name;
 
           if (["admin", "staff"].includes(role)) {
-            navigate("/admin/categories");
+            navigate("/admin/");
           } else {
             navigate("/");
           }
