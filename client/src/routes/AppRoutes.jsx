@@ -5,6 +5,9 @@ import NotFound from "../pages/NotFound";
 
 // USER
 import Home          from "../pages/user/Home";
+import OffersPage    from "../pages/user/OffersPage";
+import CollectionsPage from "../pages/user/CollectionsPage";
+import ContactPage   from "../pages/user/ContactPage";
 import ProductList   from "../pages/user/ProductList";
 import ProductDetail from "../pages/user/ProductDetail";
 import Cart          from "../pages/user/Cart";
@@ -26,6 +29,7 @@ import RefundManagement   from "../pages/admin/RefundManagement";
 import ManageActivity     from "../pages/admin/ManageActivity";
 import Dashboard          from "../pages/admin/Dashboard";
 import DiscountManagement from "../pages/admin/DiscountManagement";
+import SupportMessages     from "../pages/admin/SupportMessages";
 
 // LAYOUT
 import AdminLayout from "../layouts/AdminLayout";
@@ -48,6 +52,9 @@ export default function AppRoutes() {
       <Route element={<UserLayout />}>
         <Route index element={<Home />} />
         <Route path="/" element={<Home />} />
+        <Route path="/uu-dai" element={<OffersPage />} />
+        <Route path="/bo-suu-tap" element={<CollectionsPage />} />
+        <Route path="/lien-he" element={<ContactPage />} />
         <Route
           path="/san-pham"
           element={
@@ -109,6 +116,7 @@ export default function AppRoutes() {
         <Route path="hoan-hang"  element={<RefundManagement />} />
         <Route path="nhat-ky"    element={<ManageActivity />} />
         <Route path="giam-gia"   element={<DiscountManagement />} />
+        <Route path="tin-nhan"   element={<SupportMessages />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

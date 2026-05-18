@@ -6,6 +6,14 @@ import { formatCurrency } from "../../utils/formatters";
 import { getImageUrl } from "../../utils/image";
 import { createSlug } from "../../utils/slug";
 
+const NAV_LINKS = [
+  { to: "/", label: "Trang chủ" },
+  { to: "/san-pham", label: "Sản phẩm" },
+  { to: "/uu-dai", label: "Ưu đãi" },
+  { to: "/bo-suu-tap", label: "Bộ sưu tập" },
+  { to: "/lien-he", label: "Liên hệ" },
+];
+
 export default function Header() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
@@ -103,7 +111,15 @@ export default function Header() {
   const displayTotal = totalQuantityCart > 99 ? "99+" : totalQuantityCart;
 
   return (
-    <header className="bg-white/90 backdrop-blur-md shadow-sm border-b border-amber-100 sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-md shadow-sm border-b border-amber-100 sticky top-0 z-50">
+      <div className="bg-stone-900 text-stone-100 text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-8 flex items-center justify-between">
+          <span className="hidden sm:inline">Miễn phí tư vấn chọn trang sức theo phong cách của bạn</span>
+          <span>Hotline: 0901 234 567</span>
+          <span className="hidden md:inline">Freeship cho đơn đủ điều kiện</span>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link
@@ -113,16 +129,19 @@ export default function Header() {
             LUMINA
           </Link>
 
-          <div className="hidden md:flex items-center gap-6 lg:gap-8">
-            <Link to="/" className="text-gray-700 hover:text-amber-600 transition font-medium">
-              Trang chủ
-            </Link>
-            <Link to="/san-pham" className="text-gray-700 hover:text-amber-600 transition font-medium">
-              Sản phẩm
-            </Link>
-          </div>
+          <nav className="hidden lg:flex items-center gap-5">
+            {NAV_LINKS.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="text-sm text-gray-700 hover:text-amber-600 transition font-medium whitespace-nowrap"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-          <form onSubmit={handleSearch} className="relative hidden sm:flex flex-1 max-w-md mx-4 lg:mx-6">
+          <form onSubmit={handleSearch} className="relative hidden sm:flex flex-1 max-w-sm mx-4 lg:mx-5">
             <input
               type="text"
               placeholder="Tìm kiếm trang sức..."
@@ -154,7 +173,14 @@ export default function Header() {
             )}
           </form>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/lien-he"
+              className="hidden xl:inline-flex px-4 py-2 rounded-full border border-amber-200 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition"
+            >
+              Liên hệ
+            </Link>
+
             <button
               onClick={() => navigate("/gio-hang")}
               className="relative p-2 text-gray-700 hover:text-amber-600 transition"
@@ -169,13 +195,36 @@ export default function Header() {
             </button>
 
             {token ? (
-              <button
-                onClick={() => navigate("/thong-tin-ca-nhan")}
-                className="hidden md:flex w-9 h-9 bg-gradient-to-br from-amber-200 to-amber-300 rounded-full cursor-pointer shadow-inner items-center justify-center text-amber-800 font-semibold"
-                aria-label="Thông tin cá nhân"
-              >
-                <UserIcon />
-              </button>
+              <div className="relative hidden md:block group">
+                <button
+                  className="flex w-9 h-9 bg-gradient-to-br from-amber-200 to-amber-300 rounded-full cursor-pointer shadow-inner items-center justify-center text-amber-800 font-semibold"
+                  aria-label="Thông tin cá nhân"
+                >
+                  <UserIcon />
+                </button>
+                <div className="absolute right-0 pt-3 hidden group-hover:block">
+                  <div className="w-52 bg-white border border-amber-100 rounded-xl shadow-xl overflow-hidden">
+                    <button
+                      onClick={() => navigate("/thong-tin-ca-nhan")}
+                      className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-amber-50"
+                    >
+                      Thông tin tài khoản
+                    </button>
+                    <button
+                      onClick={() => navigate("/thong-tin-ca-nhan/don-hang")}
+                      className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-amber-50"
+                    >
+                      Đơn hàng của tôi
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 border-t border-gray-100"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <Link
                 to="/login"
@@ -187,7 +236,7 @@ export default function Header() {
 
             <button
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-amber-50 transition"
+              className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-amber-50 transition"
               aria-label="Mở menu"
             >
               {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -196,7 +245,7 @@ export default function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-amber-100 mt-2 space-y-3 pb-4">
+          <div className="lg:hidden py-4 border-t border-amber-100 mt-2 space-y-3 pb-4">
             <div className="relative mb-3">
               <form onSubmit={handleSearch} className="flex">
                 <input
@@ -228,57 +277,57 @@ export default function Header() {
               )}
             </div>
 
-            <Link
-              to="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-gray-700 hover:bg-amber-50 rounded-lg transition"
-            >
-              Trang chủ
-            </Link>
-            <Link
-              to="/san-pham"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-gray-700 hover:bg-amber-50 rounded-lg transition"
-            >
-              Sản phẩm
-            </Link>
+            <nav className="grid grid-cols-1 gap-1">
+              {NAV_LINKS.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-gray-700 hover:bg-amber-50 rounded-lg transition"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
 
-            {token ? (
-              <>
-                <button
-                  onClick={() => {
-                    navigate("/thong-tin-ca-nhan");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-amber-50 rounded-lg transition"
+            <div className="pt-3 border-t border-amber-100">
+              {token ? (
+                <>
+                  <button
+                    onClick={() => {
+                      navigate("/thong-tin-ca-nhan");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-amber-50 rounded-lg transition"
+                  >
+                    Cá nhân
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/thong-tin-ca-nhan/don-hang");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-amber-50 rounded-lg transition"
+                  >
+                    Đơn hàng
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                  >
+                    Đăng xuất
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-amber-700 font-medium hover:bg-amber-50 rounded-lg transition"
                 >
-                  Cá nhân
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/thong-tin-ca-nhan/don-hang");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-amber-50 rounded-lg transition"
-                >
-                  Đơn hàng
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                >
-                  Đăng xuất
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 text-amber-700 font-medium hover:bg-amber-50 rounded-lg transition"
-              >
-                Đăng nhập
-              </Link>
-            )}
+                  Đăng nhập
+                </Link>
+              )}
+            </div>
           </div>
         )}
       </div>

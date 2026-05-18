@@ -107,7 +107,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+      <section id="bo-suu-tap" className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
         <SectionTitle
           eyebrow="Danh mục"
           title="Mua sắm theo phong cách"
@@ -175,7 +175,7 @@ export default function Home() {
         )}
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+      <section id="lien-he" className="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
         <div className="bg-stone-900 rounded-2xl overflow-hidden grid md:grid-cols-[1.2fr_0.8fr]">
           <div className="p-7 sm:p-10 text-white">
             <p className="text-amber-300 text-sm font-semibold uppercase tracking-[0.2em]">
