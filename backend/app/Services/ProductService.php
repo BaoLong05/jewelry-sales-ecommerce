@@ -39,6 +39,13 @@ class ProductService
             $query->where('category_id', $request->category_id);
         }
 
+        if ($request->boolean('has_discount')) {
+            $query->whereHas('discounts', fn($q) => $q
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+            );
+        }
+
         // sap xep 
         switch ($request->sort) {
             case 'price_asc':
@@ -51,7 +58,10 @@ class ProductService
                 $query->orderBy('id', 'desc');
         }
 
-        return $query->paginate(8);
+        $perPage = (int) $request->input('per_page', 8);
+        $perPage = max(1, min($perPage, 24));
+
+        return $query->paginate($perPage);
     }
 
     // chi tiet san pham

@@ -1,9 +1,10 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import NotFound from "../pages/NotFound";
 
 // USER
+import Home          from "../pages/user/Home";
 import ProductList   from "../pages/user/ProductList";
 import ProductDetail from "../pages/user/ProductDetail";
 import Cart          from "../pages/user/Cart";
@@ -45,8 +46,8 @@ export default function AppRoutes() {
 
       {/* USER */}
       <Route element={<UserLayout />}>
-        <Route index element={<Navigate to="/san-pham" replace />} />
-        <Route path="/" element={<Navigate to="/san-pham" replace />} />
+        <Route index element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route
           path="/san-pham"
           element={

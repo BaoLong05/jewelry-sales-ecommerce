@@ -12,7 +12,7 @@ export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [keyword, setKeyword] = useState(searchParams.get("search") || "");
-  const [activeCategory, setActiveCategory] = useState("");
+  const [activeCategory, setActiveCategory] = useState(searchParams.get("category_id") || "");
   const [sort, setSort] = useState("latest");
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -20,6 +20,7 @@ export default function ProductList() {
 
   useEffect(() => {
     setKeyword(searchParams.get("search") || "");
+    setActiveCategory(searchParams.get("category_id") || "");
     setPage(1);
   }, [searchParams]);
 
@@ -44,6 +45,7 @@ export default function ProductList() {
   const handleSearch = () => {
     const params = {};
     if (keyword.trim()) params.search = keyword.trim();
+    if (activeCategory) params.category_id = activeCategory;
     setSearchParams(params);
     setPage(1);
   };
@@ -101,9 +103,9 @@ export default function ProductList() {
           </button>
           {categories.map((c) => (
             <button key={c.id}
-              onClick={() => { setActiveCategory(c.id); setPage(1); }}
+              onClick={() => { setActiveCategory(String(c.id)); setPage(1); }}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeCategory === c.id
+                activeCategory === String(c.id)
                   ? "bg-amber-600 text-white shadow-md"
                   : "bg-white/60 text-gray-600 hover:bg-amber-100 border border-gray-200"
               }`}
