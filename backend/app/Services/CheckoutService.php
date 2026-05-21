@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class CheckoutService
 {
+    private const SHIPPING_FEE = 30000;
+
     public function placeOrder($user, array $data): array
     {
         return DB::transaction(function () use ($user, $data) {
@@ -26,6 +28,7 @@ class CheckoutService
             }
 
             $subtotal = $discountAmount = 0;
+            $hasFreeship = false;
             $itemsData = [];
 
             foreach ($cartItems as $item) {
@@ -38,8 +41,9 @@ class CheckoutService
                 $discountedPrice = $product->getDiscountedPrice();
                 $itemDiscount    = ($originalPrice - $discountedPrice) * $item->quantity;
 
-                $subtotal       += $discountedPrice * $item->quantity;
+                $subtotal       += $originalPrice * $item->quantity;
                 $discountAmount += $itemDiscount;
+                $hasFreeship = $hasFreeship || $product->discounts->contains('type', 'freeship');
 
                 $itemsData[] = [
                     'product'         => $product,
@@ -63,11 +67,14 @@ class CheckoutService
                 'street'        => $address->street,
             ]);
 
+            $shippingFee = $hasFreeship ? 0 : self::SHIPPING_FEE;
+            $payableTotal = $subtotal - $discountAmount + $shippingFee;
+
             // order luôn bắt đầu là pending — không bao giờ set paid ở đây
             $order = Order::create([
                 'user_id'         => $user->id,
                 'order_code'      => 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
-                'total_price'     => $subtotal,
+                'total_price'     => $payableTotal,
                 'discount_amount' => $discountAmount,
                 'status'          => 'pending',
                 'address'         => $addressSnapshot,
@@ -89,7 +96,7 @@ class CheckoutService
             $payment = Payment::create([
                 'order_id'        => $order->id,
                 'payment_date'    => now(),
-                'amount'          => $subtotal,
+                'amount'          => $payableTotal,
                 'method'          => $data['payment_method'],
                 'status'          => 'pending',
                 'idempotency_key' => (string) Str::uuid(),
@@ -102,8 +109,9 @@ class CheckoutService
                     'payment_method'  => 'cod',
                     'payment_token'   => $payment->payment_token,
                     'order_code'      => $order->order_code,
-                    'total_amount'    => $subtotal,
+                    'total_amount'    => $payableTotal,
                     'discount_amount' => $discountAmount,
+                    'shipping_fee'     => $shippingFee,
                 ];
             }
 
@@ -116,13 +124,14 @@ class CheckoutService
                 return [
                     'payment_method'   => 'bank_transfer',
                     'payment_id'       => $payment->id,
-                    'amount'           => $subtotal,
+                    'amount'           => $payableTotal,
                     'transfer_content' => $payment->idempotency_key,
                     'bank_account'     => config('payment.bank_account'),
                     'bank_name'        => config('payment.bank_name'),
                     'bank_owner'       => config('payment.bank_owner'),
-                    'qr_url'           => $this->generateVietQR($subtotal, $payment->idempotency_key),
+                    'qr_url'           => $this->generateVietQR($payableTotal, $payment->idempotency_key),
                     'discount_amount'  => $discountAmount,
+                    'shipping_fee'     => $shippingFee,
                 ];
             }
 
@@ -163,7 +172,10 @@ class CheckoutService
             $originalPrice   = (float) $product->price;
             $discountedPrice = $product->getDiscountedPrice();
             $itemDiscount    = ($originalPrice - $discountedPrice) * $data['quantity'];
-            $total           = $discountedPrice * $data['quantity'];
+            $subtotal        = $originalPrice * $data['quantity'];
+            $hasFreeship     = $product->discounts->contains('type', 'freeship');
+            $shippingFee     = $hasFreeship ? 0 : self::SHIPPING_FEE;
+            $total           = $subtotal - $itemDiscount + $shippingFee;
 
             $address = Address::where('id', $data['address_id'])
                 ->where('user_id', $user->id)
@@ -216,6 +228,7 @@ class CheckoutService
                     'order_code'      => $order->order_code,
                     'total_amount'    => $total,
                     'discount_amount' => $itemDiscount,
+                    'shipping_fee'     => $shippingFee,
                 ];
             }
 
@@ -231,6 +244,7 @@ class CheckoutService
                     'bank_owner'       => config('payment.bank_owner'),
                     'qr_url'           => $this->generateVietQR($total, $payment->idempotency_key),
                     'discount_amount'  => $itemDiscount,
+                    'shipping_fee'     => $shippingFee,
                 ];
             }
 
@@ -387,10 +401,18 @@ class CheckoutService
             ->with('order.items.product')
             ->firstOrFail();
 
+        $itemsSubtotal = $payment->order->items->sum(
+            fn($item) => (float) $item->price * (int) $item->quantity
+        );
+
         return [
             'order_code'      => $payment->order->order_code,
             'total_amount'    => $payment->order->total_price,
             'discount_amount' => $payment->order->discount_amount,
+            'shipping_fee'     => max(0, (float) $payment->order->total_price - $itemsSubtotal),
+            'amount_due'       => $payment->status === 'paid' && $payment->method !== 'cod'
+                ? 0
+                : (float) $payment->order->total_price,
             'payment_method'  => $payment->method,
             'payment_status'  => $payment->status,  // pending = COD chưa thu, paid = đã thu
             'order_status'    => $payment->order->status,

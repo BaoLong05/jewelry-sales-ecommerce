@@ -9,13 +9,13 @@ use App\Exceptions\OrderNotCompletedException;
 use App\Exceptions\RefundRequestAlreadyExistsException;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\RefundRequest;
 use App\Models\Review;
 use App\Models\ReviewImage;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class OrderService
 {
@@ -103,12 +103,23 @@ class OrderService
 
             if (!empty($data['images'])) {
                 foreach ($data['images'] as $image) {
-                    $path = $image->store('reviews', 'public');
                     ReviewImage::create([
                         'review_id' => $review->id,
-                        'image_url' => Storage::url($path),
+                        'image_url' => $this->storePublicUpload($image, 'reviews'),
                     ]);
                 }
+            }
+
+            $product = Product::whereKey($item->product_id)->lockForUpdate()->first();
+            if ($product) {
+                $ratingStats = Review::where('product_id', $item->product_id)
+                    ->selectRaw('COUNT(*) as rating_count, AVG(rating) as rating_avg')
+                    ->first();
+
+                $product->update([
+                    'rating_avg' => round((float) $ratingStats->rating_avg, 1),
+                    'rating_count' => (int) $ratingStats->rating_count,
+                ]);
             }
 
             $review->load('images');
@@ -151,8 +162,7 @@ class OrderService
         $imageUrls = [];
         if (!empty($data['images'])) {
             foreach ($data['images'] as $image) {
-                $path = $image->store('refunds', 'public');
-                $imageUrls[] = Storage::url($path);
+                $imageUrls[] = $this->storePublicUpload($image, 'refunds');
             }
         }
 
@@ -234,5 +244,18 @@ class OrderService
                 $item->loaded_refund = $orderRefunds->get($item->id);
             }
         }
+    }
+
+    private function storePublicUpload($image, string $directory): string
+    {
+        $destination = public_path('storage/' . $directory);
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
+        }
+
+        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $image->move($destination, $filename);
+
+        return 'storage/' . $directory . '/' . $filename;
     }
 }

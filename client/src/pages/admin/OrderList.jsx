@@ -144,7 +144,11 @@ export default function OrderList() {
                                             <div className="text-sm text-gray-500">{order.user?.email}</div>
                                         </td>
                                         <td className="px-4 py-3 font-medium text-blue-600">
-                                            {formatPrice(order.total_price)}
+                                            {formatPrice(
+                                                order.payment?.status === "paid" && order.payment?.method !== "cod"
+                                                    ? 0
+                                                    : order.total_price
+                                            )}
                                         </td>
                                         <td className="px-4 py-3">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>

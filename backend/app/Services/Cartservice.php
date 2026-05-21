@@ -60,6 +60,15 @@ class CartService
 
         return $product->price;
     }
+
+    private function hasActiveFreeship(Product $product): bool
+    {
+        return $product->discounts()
+            ->where('type', 'freeship')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->exists();
+    }
     //lay anh vao gio hang, them san pham vao gio hang neu trung tang so luong
     public function addToCart(int $userId, int $productId, int $quantity = 1): array
     {
@@ -189,6 +198,7 @@ class CartService
                 'description'    => $product->description,
                 'price' => (float) $item->price,
                 'original_price' => (float) $product->price,
+                'has_freeship'   => $this->hasActiveFreeship($product),
                 'stock'          => $product->stock,
                 'image_url'      => $mainImage,
             ],

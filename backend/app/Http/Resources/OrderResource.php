@@ -10,6 +10,17 @@ class OrderResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $itemsSubtotal = $this->relationLoaded('items')
+            ? (float) $this->items->sum(fn($item) => (float) $item->price * (int) $item->quantity)
+            : 0;
+        $shippingFee = $this->relationLoaded('items')
+            ? max(0, (float) $this->total_price - $itemsSubtotal)
+            : 0;
+        $isPaidOnline = $this->relationLoaded('payment')
+            && $this->payment
+            && $this->payment->status === 'paid'
+            && $this->payment->method !== 'cod';
+
         return [
             'id'              => $this->id,
             'order_code'      => $this->order_code,
@@ -17,7 +28,9 @@ class OrderResource extends JsonResource
             'status_label'    => $this->status_label,
             'total_price'     => (float) $this->total_price,
             'discount_amount' => (float) $this->discount_amount,
-            'final_price'     => (float) ($this->total_price - $this->discount_amount),
+            'final_price'     => (float) $this->total_price,
+            'shipping_fee'    => $shippingFee,
+            'amount_due'      => $isPaidOnline ? 0 : (float) $this->total_price,
             'payment_method'  => $this->payment_method,
             'address'         => $this->address,
             'created_at'      => $this->created_at->format('d/m/Y H:i'),

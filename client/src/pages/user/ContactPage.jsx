@@ -10,7 +10,7 @@ const STORE_INFO = [
   { label: "Tên website", value: "Lumina Jewelry" },
   { label: "Số điện thoại", value: "0901 234 567" },
   { label: "Email", value: "support@lumina.vn" },
-  { label: "Địa chỉ", value: "123 Nguyễn Trãi, Quận 1, TP. Hồ Chí Minh" },
+  { label: "Địa chỉ", value: "23 Võ Văn Ngân, Quận Thủ Đức, TP. Hồ Chí Minh" },
   { label: "Thời gian hỗ trợ", value: "08:00 - 21:00, Thứ 2 - Chủ nhật" },
 ];
 

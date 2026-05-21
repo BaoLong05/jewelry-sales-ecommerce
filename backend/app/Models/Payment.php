@@ -19,7 +19,11 @@ class Payment extends Model
         'paid_at',          
     ];
 
-    protected $casts = ['gateway_response' => 'array']; 
+    protected $casts = [
+        'gateway_response' => 'array',
+        'payment_date' => 'datetime',
+        'paid_at' => 'datetime',
+    ]; 
 
     public function order() { return $this->belongsTo(Order::class); }
 }

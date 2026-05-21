@@ -10,6 +10,7 @@ bin-release/
 # Vagrant
 .vagrant/
 Vagrantfile
+.env1
 
 # Docker
 docker-compose.yml

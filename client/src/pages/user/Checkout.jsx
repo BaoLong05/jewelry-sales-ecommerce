@@ -21,6 +21,8 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
+const SHIPPING_FEE = 30000;
+
 export default function Checkout() {
   document.title = "Thanh toán";
   const { state } = useLocation();
@@ -63,6 +65,7 @@ export default function Checkout() {
             name: state.buyNowItem.name,
             image_url: state.buyNowItem.image,
             original_price: state.buyNowItem.original_price,
+            has_freeship: state.buyNowItem.has_freeship,
           },
         },
       ]
@@ -83,7 +86,8 @@ export default function Checkout() {
     return s + (orig - i.price) * i.quantity;
   }, 0);
   const hasFreeship = cartItems.some((i) => i.product?.has_freeship);
-  const total = subtotal - discountAmount;
+  const shippingFee = hasFreeship ? 0 : SHIPPING_FEE;
+  const total = subtotal - discountAmount + shippingFee;
 
   const handlePlaceOrder = async () => {
     if (!selectedAddressId)
@@ -215,12 +219,6 @@ export default function Checkout() {
                     icon: WalletIcon,
                     desc: "Chuyển hướng sang ứng dụng MoMo",
                   },
-                  {
-                    value: "vnpay",
-                    label: "VNPay",
-                    icon: CreditCardIcon,
-                    desc: "Thẻ ATM / Visa / QR VNPay",
-                  },
                 ].map((opt) => (
                   <label
                     key={opt.value}
@@ -328,18 +326,22 @@ export default function Checkout() {
                   <span>Tạm tính</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
+                <div className="flex justify-between text-sm text-gray-700">
+                  <span>Phí vận chuyển</span>
+                  <span>{formatPrice(SHIPPING_FEE)}</span>
+                </div>
+                {hasFreeship && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Giảm phí vận chuyển</span>
+                    <span>-{formatPrice(SHIPPING_FEE)}</span>
+                  </div>
+                )}
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
                     <span>Giảm giá</span>
                     <span>-{formatPrice(discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Phí vận chuyển</span>
-                  <span className="text-green-600">
-                    {hasFreeship ? "Miễn phí" : "Miễn phí"}
-                  </span>
-                </div>
                 {discountAmount > 0 && (
                   <div className="bg-green-50 rounded-lg px-3 py-2 flex justify-between text-xs text-green-700">
                     <span>✨ Bạn tiết kiệm được</span>

@@ -97,7 +97,7 @@ export default function OrderSuccess() {
             <div className="flex justify-between">
               <span className="text-gray-500">Tổng tiền</span>
               <span className="font-semibold text-amber-700">
-                {formatPrice(order.total_amount)}
+                {formatPrice(order.amount_due ?? order.total_amount)}
               </span>
             </div>
             {order.discount_amount > 0 && (
