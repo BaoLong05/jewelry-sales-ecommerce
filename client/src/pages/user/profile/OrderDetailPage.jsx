@@ -2,8 +2,26 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProfileOrderDetail } from "../../../services/profileService/orderService";
 import { formatCurrency, ORDER_STATUS_COLOR, PROGRESS_STEPS } from "../../../utils/formatters";
+import { getImageUrl } from "../../../utils/image";
 import ReviewModal from "./ReviewModal";
 import RefundModal from "./RefundModal";
+
+const parseAddress = (address) => {
+  if (!address) return null;
+  if (typeof address === "object") return address;
+
+  try {
+    const parsed = JSON.parse(address);
+    return typeof parsed === "string" ? JSON.parse(parsed) : parsed;
+  } catch {
+    return null;
+  }
+};
+
+const formatAddress = (address) =>
+  [address?.street, address?.ward, address?.district, address?.province]
+    .filter(Boolean)
+    .join(", ");
 
 export default function OrderDetailPage() {
   document.title = "Chi tiết đơn hàng của bạn";
@@ -51,6 +69,7 @@ export default function OrderDetailPage() {
   }
 
   const isNormalFlow = !["cancelled", "refunded"].includes(order.status);
+  const address = parseAddress(order.address);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
@@ -134,7 +153,7 @@ export default function OrderDetailPage() {
             <div key={item.id} className="flex flex-col sm:flex-row sm:items-start gap-4 py-5 first:pt-0 last:pb-0">
               <div className="flex-shrink-0">
                 <img
-                  src={item.product?.thumbnail || "/placeholder.png"}
+                  src={getImageUrl(item.product?.thumbnail)}
                   alt={item.product?.name}
                   className="w-20 h-20 rounded-xl object-cover border border-amber-100 bg-amber-50"
                 />
@@ -221,11 +240,29 @@ export default function OrderDetailPage() {
       {/* Address */}
       <div className="bg-white rounded-2xl border border-[#E8E2D2] shadow-sm p-6">
         <h2 className="text-base font-serif font-semibold text-gray-800 mb-2">Địa chỉ giao hàng</h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
-          {typeof order.address === "object"
-            ? `${order.address.street || ""}, ${order.address.district || ""}, ${order.address.city || ""}`
-            : order.address}
-        </p>
+        {address ? (
+          <div className="text-sm text-gray-600 leading-relaxed space-y-1">
+            {address.receiver_name && (
+              <p>
+                <span className="text-gray-500">Người nhận: </span>
+                <span className="font-medium text-gray-800">
+                  {address.receiver_name}
+                </span>
+              </p>
+            )}
+            {address.phone && (
+              <p>
+                <span className="text-gray-500">SĐT: </span>
+                <span className="font-medium text-gray-800">{address.phone}</span>
+              </p>
+            )}
+            <p>{formatAddress(address) || "Chưa có địa chỉ giao hàng"}</p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {order.address || "Chưa có địa chỉ giao hàng"}
+          </p>
+        )}
       </div>
 
       {/* Modals */}
