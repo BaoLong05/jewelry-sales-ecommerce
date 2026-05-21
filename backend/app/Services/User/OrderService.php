@@ -23,7 +23,7 @@ class OrderService
     {
         $query = Order::query()
             ->where('user_id', $userId)
-            ->with(['items.product', 'payment'])
+            ->with(['items.product.images', 'payment'])
             ->latest();
 
         if (!empty($filters['status'])) {
@@ -50,7 +50,7 @@ class OrderService
         $order = Order::query()
             ->where('order_code', $orderCode)
             ->where('user_id', $userId)
-            ->with(['items.product', 'payment'])
+            ->with(['items.product.images', 'payment'])
             ->first();
 
         if (!$order) {

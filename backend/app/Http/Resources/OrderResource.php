@@ -8,6 +8,24 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
 {
+    private function normalizeAddress($address)
+    {
+        if (is_array($address)) {
+            return $address;
+        }
+
+        if (!is_string($address)) {
+            return $address;
+        }
+
+        $decoded = json_decode($address, true);
+        if (is_string($decoded)) {
+            $decoded = json_decode($decoded, true);
+        }
+
+        return is_array($decoded) ? $decoded : $address;
+    }
+
     public function toArray(Request $request): array
     {
         $itemsSubtotal = $this->relationLoaded('items')
@@ -32,7 +50,7 @@ class OrderResource extends JsonResource
             'shipping_fee'    => $shippingFee,
             'amount_due'      => $isPaidOnline ? 0 : (float) $this->total_price,
             'payment_method'  => $this->payment_method,
-            'address'         => $this->address,
+            'address'         => $this->normalizeAddress($this->address),
             'created_at'      => $this->created_at->format('d/m/Y H:i'),
 
             // stepper cho FE

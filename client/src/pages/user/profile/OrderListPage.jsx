@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfileOrders } from "../../../services/profileService/orderService";
 import { formatCurrency, ORDER_STATUS_COLOR } from "../../../utils/formatters";
+import { getImageUrl } from "../../../utils/image";
 
 const STATUS_TABS = [
   { key: "", label: "Tất cả" },
@@ -204,7 +205,7 @@ export default function OrderListPage() {
                         className="flex items-center gap-3 py-2 first:pt-0 last:pb-0"
                       >
                         <img
-                          src={item.product?.thumbnail || "/placeholder.png"}
+                          src={getImageUrl(item.product?.thumbnail)}
                           alt={item.product?.name}
                           className="w-12 h-12 rounded-lg object-cover border border-amber-100 bg-amber-50 flex-shrink-0"
                         />

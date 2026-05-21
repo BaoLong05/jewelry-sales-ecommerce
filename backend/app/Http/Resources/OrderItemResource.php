@@ -9,6 +9,12 @@ class OrderItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $thumbnail = null;
+        if ($this->relationLoaded('product') && $this->product?->relationLoaded('images')) {
+            $thumbnail = $this->product->images->firstWhere('is_main', true)?->image_url
+                ?? $this->product->images->first()?->image_url;
+        }
+
         return [
             'id'              => $this->id,
             'product_id'      => $this->product_id,
@@ -22,7 +28,7 @@ class OrderItemResource extends JsonResource
                 'id'        => $this->product->id,
                 'name'      => $this->product->name,
                 'slug'      => $this->product->slug ?? null,
-                'thumbnail' => $this->product->thumbnail ?? null,
+                'thumbnail' => $thumbnail,
             ]),
 
             // review
