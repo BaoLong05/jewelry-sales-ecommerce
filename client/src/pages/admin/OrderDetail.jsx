@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { showOrderDetail, updateStatusOrder } from "../../services/OrderService";
+import { showOrderDetail, updateStatusOrder } from "../../services/orderService";
 import {
     ORDER_STATUSES,
     getStatusLabel,
