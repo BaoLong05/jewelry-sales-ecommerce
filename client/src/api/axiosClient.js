@@ -2,7 +2,7 @@ import axios from "axios";
 import { navigateTo } from "../utils/navigate";
 
 const axiosClient = axios.create({
-  baseURL: "http://192.168.33.13:8000/api",
+  baseURL: "https://jewelry-sales-ecommerce-1.onrender.com/api",
 });
 
 // attach token
