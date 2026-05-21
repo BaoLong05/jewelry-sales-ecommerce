@@ -24,19 +24,19 @@ class DashboardService
 
         // Doanh thu
         $revenueTotal = Order::where('status', Order::STATUS_COMPLETED)
-            ->sum(DB::raw('total_price - discount_amount'));
+            ->sum('total_price');
 
         $revenueThisMonth = Order::where('status', Order::STATUS_COMPLETED)
             ->whereBetween('created_at', [$startMonth, $now])
-            ->sum(DB::raw('total_price - discount_amount'));
+            ->sum('total_price');
 
         $revenueLastMonth = Order::where('status', Order::STATUS_COMPLETED)
             ->whereBetween('created_at', [$lastMonth, $endLastMonth])
-            ->sum(DB::raw('total_price - discount_amount'));
+            ->sum('total_price');
 
         $revenueToday = Order::where('status', Order::STATUS_COMPLETED)
             ->where('created_at', '>=', $startToday)
-            ->sum(DB::raw('total_price - discount_amount'));
+            ->sum('total_price');
 
         // Đơn hàng
         $totalOrders       = Order::count();
@@ -135,7 +135,7 @@ class DashboardService
     {
         return Order::where('status', Order::STATUS_COMPLETED)
             ->where('created_at', '>=', Carbon::now()->subDays($days))
-            ->selectRaw('DATE(created_at) as date, SUM(total_price - discount_amount) as revenue, COUNT(*) as orders')
+            ->selectRaw('DATE(created_at) as date, SUM(total_price) as revenue, COUNT(*) as orders')
             ->groupBy('date')
             ->orderBy('date')
             ->get()
@@ -153,7 +153,7 @@ class DashboardService
     {
         return Order::where('status', Order::STATUS_COMPLETED)
             ->where('created_at', '>=', Carbon::now()->subMonths(12))
-            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(total_price - discount_amount) as revenue, COUNT(*) as orders')
+            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(total_price) as revenue, COUNT(*) as orders')
             ->groupBy('year', 'month')
             ->orderBy('year')
             ->orderBy('month')
@@ -224,7 +224,7 @@ class DashboardService
                 'order_code'   => $o->order_code,
                 'status'       => $o->status,
                 'status_label' => $o->status_label,
-                'final_price'  => (float) ($o->total_price - $o->discount_amount),
+                'final_price'  => (float) $o->total_price,
                 'created_at'   => $o->created_at->format('d/m/Y H:i'),
                 'user'         => [
                     'name'  => $o->user?->name,

@@ -111,6 +111,7 @@ export default function ProductDetail() {
           name: product.name,
           price: discountedPrice,
           original_price: originalPrice,
+          has_freeship: hasFreeship,
           image: product.images?.[0]?.image_url,
         },
       },
@@ -502,10 +503,10 @@ export default function ProductDetail() {
                             {review.images.map((url, i) => (
                               <img
                                 key={i}
-                                src={url}
+                                src={getImageUrl(url)}
                                 alt="Ảnh đánh giá"
                                 className="w-16 h-16 object-cover rounded-lg border border-amber-100 cursor-pointer hover:opacity-90 hover:scale-105 transition"
-                                onClick={() => window.open(url, "_blank")}
+                                onClick={() => window.open(getImageUrl(url), "_blank")}
                               />
                             ))}
                           </div>

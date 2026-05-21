@@ -64,6 +64,7 @@ export default function ProductList() {
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="flex-1 flex gap-2">
             <input
+              maxLength={255}
               className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-white/50 focus:bg-white focus:ring-2 focus:ring-amber-200 focus:border-amber-300 outline-none transition text-gray-800 placeholder:text-gray-400 text-sm"
               placeholder="Tìm kiếm trang sức..."
               value={keyword}

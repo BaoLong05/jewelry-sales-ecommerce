@@ -5,6 +5,7 @@ import {
   rejectRefund,
 } from "../../services/adminRefundService";
 import { toast } from "react-toastify";
+import { getImageUrl } from "../../utils/image";
 
 const STATUS_TABS = [
   { key: "", label: "Tất cả" },
@@ -134,7 +135,7 @@ export default function RefundManagement() {
                     <div className="flex items-center gap-2">
                       {req.product?.thumbnail && (
                         <img
-                          src={req.product.thumbnail}
+                          src={getImageUrl(req.product.thumbnail)}
                           alt=""
                           className="w-10 h-10 rounded-lg object-cover border border-gray-100"
                         />
@@ -160,10 +161,10 @@ export default function RefundManagement() {
                         {req.images.slice(0, 3).map((url, i) => (
                           <img
                             key={i}
-                            src={url}
+                            src={getImageUrl(url)}
                             alt=""
                             className="w-8 h-8 rounded object-cover cursor-pointer"
-                            onClick={() => window.open(url, "_blank")}
+                            onClick={() => window.open(getImageUrl(url), "_blank")}
                           />
                         ))}
                       </div>

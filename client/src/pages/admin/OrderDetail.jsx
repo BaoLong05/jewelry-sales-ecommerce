@@ -90,6 +90,10 @@ export default function OrderDetail() {
     }
 
     const addr = parseAddress(order.address);
+    const amountDue =
+        order.payment?.status === "paid" && order.payment?.method !== "cod"
+            ? 0
+            : order.total_price;
 
     return (
         <div className="p-6 max-w-6xl mx-auto">
@@ -194,7 +198,7 @@ export default function OrderDetail() {
                             <div>
                                 <p className="text-gray-500">Số tiền</p>
                                 <p className="font-medium text-green-600">
-                                    {formatPrice(order.payment.amount)}
+                                    {formatPrice(amountDue)}
                                 </p>
                             </div>
                             {order.payment.paid_at && (
@@ -271,7 +275,7 @@ export default function OrderDetail() {
                                     Tổng cộng
                                 </td>
                                 <td className="px-5 py-4 text-right text-lg font-bold text-red-600">
-                                    {formatPrice(order.total_price)}
+                                    {formatPrice(amountDue)}
                                 </td>
                             </tr>
                         </tfoot>

@@ -213,7 +213,7 @@ export default function OrderDetailPage() {
           )}
           <div className="flex justify-between py-2 mt-1 border-t border-dashed border-amber-200 font-semibold text-gray-800">
             <span>Tổng cộng</span>
-            <span className="text-amber-700 text-base">{formatCurrency(order.final_price)}</span>
+            <span className="text-amber-700 text-base">{formatCurrency(order.amount_due ?? order.final_price)}</span>
           </div>
         </div>
       </div>
