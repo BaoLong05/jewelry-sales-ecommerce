@@ -14,9 +14,9 @@ class CheckPermission
         $user = $request->user();
 
         //kiem tra 
-        if (!$user || $user->hasPermission($permission)) {
+        if (!$user || !$user->hasPermission($permission)) {
             return response()->json(
-                ["messsage" => "Forbidden"],
+                ["message" => "Forbidden"],
                 403
             );
         }

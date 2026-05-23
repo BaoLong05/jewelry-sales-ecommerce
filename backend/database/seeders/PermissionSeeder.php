@@ -33,5 +33,16 @@ class PermissionSeeder extends Seeder
         if ($admin) {
             $admin->permissions()->sync(Permission::pluck('id'));
         }
+
+        $staff = Role::where('name', 'staff')->first();
+        if ($staff) {
+            $staff->permissions()->syncWithoutDetaching(
+                Permission::whereIn('name', [
+                    'category.create',
+                    'category.update',
+                    'category.delete',
+                ])->pluck('id')
+            );
+        }
     }
 }

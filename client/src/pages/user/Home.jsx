@@ -6,6 +6,7 @@ import { getDiscountInfo } from "../../utils/discount";
 import { formatCurrency } from "../../utils/formatters";
 import { getImageUrl } from "../../utils/image";
 import { createSlug } from "../../utils/slug";
+import { flattenLeafCategories } from "../../utils/categories";
 
 export default function Home() {
   document.title = "Lumina - Trang chủ";
@@ -21,11 +22,11 @@ export default function Home() {
       try {
         const [categoryRes, productRes, discountRes] = await Promise.all([
           getCategories(),
-          getProducts({ page: 1, sort: "latest", per_page: 8 }),
+          getProducts({ page: 1, sort: "latest", per_page: 24 }),
           getProducts({ page: 1, sort: "latest", has_discount: 1, per_page: 4 }),
         ]);
 
-        setCategories(categoryRes.data?.data?.data || categoryRes.data?.data || []);
+        setCategories(flattenLeafCategories(categoryRes.data?.data?.data || categoryRes.data?.data || []));
         setProducts(productRes.data?.data?.data || []);
         setDiscountProducts(discountRes.data?.data?.data || []);
       } catch {
@@ -56,6 +57,19 @@ export default function Home() {
         .slice(0, 8),
     [products],
   );
+
+  const categoryImages = useMemo(() => {
+    const images = {};
+
+    products.forEach((product) => {
+      const image = product.images?.find((item) => item.is_main) || product.images?.[0];
+      if (product.category_id && image?.image_url && !images[product.category_id]) {
+        images[product.category_id] = image.image_url;
+      }
+    });
+
+    return images;
+  }, [products]);
 
   return (
     <main className="bg-[#FEFCF3] min-h-screen">
@@ -118,21 +132,37 @@ export default function Home() {
           <HomeSkeleton />
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {categories.slice(0, 10).map((category) => (
-              <Link
-                key={category.id}
-                to={`/san-pham?category_id=${category.id}`}
-                className="group bg-white border border-amber-100 rounded-xl p-5 hover:border-amber-300 hover:shadow-md transition"
-              >
-                <div className="w-11 h-11 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-serif text-xl mb-4 group-hover:bg-amber-600 group-hover:text-white transition">
-                  {category.name?.charAt(0) || "L"}
-                </div>
-                <h3 className="font-semibold text-gray-800 group-hover:text-amber-700 transition">
-                  {category.name}
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">Xem bộ sưu tập</p>
-              </Link>
-            ))}
+            {categories.slice(0, 10).map((category) => {
+              const categoryImage = categoryImages[category.id];
+
+              return (
+                <Link
+                  key={category.id}
+                  to={`/san-pham?category_id=${category.id}`}
+                  className="group bg-white border border-amber-100 rounded-xl overflow-hidden hover:border-amber-300 hover:shadow-md transition"
+                >
+                  <div className="h-28 bg-amber-50 overflow-hidden">
+                    {categoryImage ? (
+                      <img
+                        src={getImageUrl(categoryImage)}
+                        alt={category.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-amber-100 text-amber-700 flex items-center justify-center font-serif text-2xl">
+                        {category.name?.charAt(0) || "L"}
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-800 group-hover:text-amber-700 transition">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1">Xem bộ sưu tập</p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
