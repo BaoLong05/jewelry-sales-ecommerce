@@ -97,4 +97,3 @@ https://f703b1c3.jewelry-sales-ecommerce.pages.dev/
 ---
 
 ```bash
-286 giờ × 200.000 VNĐ = 57.200.000 VNĐ
