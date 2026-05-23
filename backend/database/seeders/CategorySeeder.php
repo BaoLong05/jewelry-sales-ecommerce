@@ -13,12 +13,25 @@ class CategorySeeder extends Seeder
         $jewelry = $this->upsertCategory('Trang sức');
         $watch = $this->upsertCategory('Đồng hồ');
 
-        $this->upsertCategory('Nhẫn', $jewelry->id);
-        $this->upsertCategory('Dây chuyền', $jewelry->id);
-        $this->upsertCategory('Bông tai', $jewelry->id);
-        $this->upsertCategory('Lắc tay', $jewelry->id);
-        $this->upsertCategory('Đồng hồ nam', $watch->id);
-        $this->upsertCategory('Đồng hồ nữ', $watch->id);
+        $jewelryCategories = [
+            'Nhẫn',
+            'Bông tai',
+            'Dây chuyền',
+            'Lắc tay',
+        ];
+
+        $watchCategories = [
+            'Đồng hồ nam',
+            'Đồng hồ nữ',
+        ];
+
+        foreach ($jewelryCategories as $categoryName) {
+            $this->upsertCategory($categoryName, $jewelry->id);
+        }
+
+        foreach ($watchCategories as $categoryName) {
+            $this->upsertCategory($categoryName, $watch->id);
+        }
     }
 
     private function upsertCategory(string $name, ?int $parentId = null): Category

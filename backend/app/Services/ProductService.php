@@ -55,6 +55,14 @@ class ProductService
                 $query->orderBy('price', 'desc');
                 break;
             default:
+                $query->orderByRaw(
+                    "CASE
+                        WHEN category_id IN (SELECT id FROM categories WHERE slug = ?) THEN 0
+                        WHEN category_id IN (SELECT id FROM categories WHERE slug = ?) THEN 1
+                        ELSE 2
+                    END",
+                    ['nhan', 'bong-tai']
+                );
                 $query->orderBy('id', 'desc');
         }
 

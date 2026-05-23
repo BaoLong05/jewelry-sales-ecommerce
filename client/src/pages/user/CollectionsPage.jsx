@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCategories } from "../../services/categoryService";
+import { flattenLeafCategories } from "../../utils/categories";
 
 export default function CollectionsPage() {
   document.title = "Bộ sưu tập";
@@ -12,7 +13,7 @@ export default function CollectionsPage() {
       setLoading(true);
       try {
         const res = await getCategories();
-        setCategories(res.data?.data?.data || res.data?.data || []);
+        setCategories(flattenLeafCategories(res.data?.data?.data || res.data?.data || []));
       } catch {
         setCategories([]);
       } finally {

@@ -5,6 +5,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { getImageUrl } from "../../utils/image";
 import { createSlug } from "../../utils/slug";
 import { getDiscountInfo } from "../../utils/discount";
+import { flattenLeafCategories } from "../../utils/categories";
 
 export default function ProductList() {
   document.title = "Sản phẩm";
@@ -36,7 +37,7 @@ export default function ProductList() {
   const fetchCategories = async () => {
     try {
       const res = await getCategories();
-      setCategories(res.data.data.data || res.data || []);
+      setCategories(flattenLeafCategories(res.data.data.data || res.data || []));
     } catch {}
   };
 
