@@ -140,14 +140,14 @@ export default function Product() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (product) => {
     if (!window.confirm("Xóa sản phẩm này?")) return;
     try {
-      await deleteProduct(id,{ updated_at: product?.updated_at });
+      await deleteProduct(product.id, { updated_at: product.updated_at });
       toast.success("Xóa thành công");
       fetchProducts();
-    } catch {
-      toast.error("Xóa thất bại");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Xóa thất bại");
     }
   };
 
@@ -457,7 +457,7 @@ export default function Product() {
                             Sửa
                           </button>
                           <button
-                            onClick={() => handleDelete(p.id)}
+                            onClick={() => handleDelete(p)}
                             className="px-3 py-1.5 text-xs rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition"
                           >
                             Xóa
