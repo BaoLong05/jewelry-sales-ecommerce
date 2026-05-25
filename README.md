@@ -21,7 +21,7 @@ Hệ thống được phát triển theo mô hình tách biệt Backend và Fron
 
 Website đã được deploy tại:
 
-https://f703b1c3.jewelry-sales-ecommerce.pages.dev/
+https://5f290e8b.jewelry-sales-ecommerce.pages.dev/
 
 ---
 
