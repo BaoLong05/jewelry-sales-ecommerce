@@ -38,9 +38,6 @@ import UserLayout  from "../layouts/UserLayout";
 // GUARDS
 import ProtectedRoute, { CheckoutGuard } from "./ProtectedRoute";
 
-// CHATBOT — chỉ dùng ở trang sản phẩm
-import ChatBotAI from "../pages/ChatBotAI ";
-
 export default function AppRoutes() {
   return (
     <Routes>
@@ -55,24 +52,8 @@ export default function AppRoutes() {
         <Route path="/uu-dai" element={<OffersPage />} />
         <Route path="/bo-suu-tap" element={<CollectionsPage />} />
         <Route path="/lien-he" element={<ContactPage />} />
-        <Route
-          path="/san-pham"
-          element={
-            <>
-              <ProductList />
-              <ChatBotAI title="Trợ lý AI" placeholder="Nhập tin nhắn..." />
-            </>
-          }
-        />
-        <Route
-          path="/san-pham/:slugId"
-          element={
-            <>
-              <ProductDetail />
-              <ChatBotAI title="Trợ lý AI" placeholder="Nhập tin nhắn..." />
-            </>
-          }
-        />
+        <Route path="/san-pham" element={<ProductList />} />
+        <Route path="/san-pham/:slugId" element={<ProductDetail />} />
 
         <Route path="/gio-hang" element={<Cart />} />
 

@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Review;
 use App\Models\Discount;
+use App\Models\ChatConversation;
 
 class ChatBotAiController extends Controller
 {
@@ -27,10 +29,18 @@ class ChatBotAiController extends Controller
 
     public function chat(Request $request)
     {
-        $request->validate(['message' => 'required|string|max:500']);
+        $request->validate([
+            'message' => 'required|string|max:500',
+            'product_id' => 'nullable|integer|exists:products,id',
+        ]);
 
         $message      = $request->input('message');
         $messageLower = mb_strtolower($message, 'UTF-8');
+        $productId    = $request->input('product_id');
+
+        if ($productId) {
+            return $this->chatAboutProduct($message, (int) $productId);
+        }
 
         // ✅ FIX 3: Dùng đúng format Chat Completions
         $intentResponse = Http::withHeaders([
@@ -150,6 +160,111 @@ Chỉ trả lời dựa trên dữ liệu trên. Không bịa thêm số liệu.
             ?? 'Xin lỗi, không thể xử lý yêu cầu lúc này.';
 
         return response()->json(['reply' => $reply]);
+    }
+
+    private function chatAboutProduct(string $message, int $productId)
+    {
+        $product = Product::with([
+            'category:id,name',
+            'images:id,product_id,image_url,is_main',
+            'discounts' => fn($q) => $q
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+        ])->findOrFail($productId);
+
+        $activeDiscount = $product->discounts->first();
+        $discountedPrice = $product->getDiscountedPrice();
+
+        $data = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'category' => $product->category?->name,
+            'description' => $product->description,
+            'price' => number_format($product->price, 0, ',', '.') . 'đ',
+            'discounted_price' => number_format($discountedPrice, 0, ',', '.') . 'đ',
+            'stock' => $product->stock,
+            'stock_status' => $product->stock > 0 ? 'Còn hàng' : 'Hết hàng',
+            'rating_avg' => $product->rating_avg,
+            'rating_count' => $product->rating_count,
+            'active_discount' => $activeDiscount ? [
+                'name' => $activeDiscount->name,
+                'type' => $activeDiscount->type,
+                'value' => $activeDiscount->type === 'percent'
+                    ? $activeDiscount->value . '%'
+                    : number_format($activeDiscount->value, 0, ',', '.') . 'đ',
+                'end_date' => $activeDiscount->end_date?->format('d/m/Y'),
+            ] : null,
+        ];
+
+        $finalResponse = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type'  => 'application/json',
+        ])->post($this->apiUrl, [
+            'model' => $this->model,
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => "Bạn là trợ lý tư vấn bán hàng cho một cửa hàng trang sức. Khách đang xem đúng sản phẩm bên dưới, hãy chỉ tư vấn dựa trên sản phẩm này.
+
+Yêu cầu:
+- Trả lời bằng tiếng Việt, ngắn gọn, thân thiện.
+- Tập trung vào sản phẩm đang xem: giá, tồn kho, danh mục, mô tả, ưu đãi, đánh giá.
+- Nếu khách hỏi mua, gợi ý bấm nút thêm vào giỏ hoặc mua ngay trên trang.
+- Nếu câu hỏi cần thông tin không có trong dữ liệu sản phẩm bên dưới, hãy trả lời đúng định dạng:
+[FORWARD_TO_ADMIN] <lý do ngắn gọn vì sao cần admin hỗ trợ>
+- Không trả lời kiểu thống kê tổng cửa hàng, đơn hàng hay doanh thu.
+
+Dữ liệu sản phẩm:
+" . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+                ],
+                [
+                    'role' => 'user',
+                    'content' => $message,
+                ],
+            ],
+            'max_tokens' => 450,
+            'temperature' => 0.6,
+        ]);
+
+        $reply = $finalResponse->json('choices.0.message.content')
+            ?? 'Xin lỗi, hiện chưa thể tư vấn sản phẩm này. Bạn thử hỏi lại giúp mình nhé.';
+
+        if (str_starts_with(trim($reply), '[FORWARD_TO_ADMIN]')) {
+            return $this->forwardProductQuestionToAdmin($message, $product, $reply);
+        }
+
+        return response()->json(['reply' => $reply]);
+    }
+
+    private function forwardProductQuestionToAdmin(string $message, Product $product, string $aiReply)
+    {
+        $user = Auth::guard('sanctum')->user();
+
+        if (!$user) {
+            return response()->json([
+                'reply' => 'Câu hỏi này cần admin hỗ trợ thêm vì hiện chưa có đủ dữ liệu trong hệ thống. Bạn vui lòng đăng nhập rồi gửi lại câu hỏi để mình chuyển trực tiếp cho admin nhé.',
+                'forwarded_to_admin' => false,
+                'requires_login' => true,
+            ]);
+        }
+
+        $reason = trim(str_replace('[FORWARD_TO_ADMIN]', '', $aiReply));
+        $conversation = ChatConversation::firstOrCreate([
+            'user_id' => $user->id,
+        ]);
+
+        $conversation->messages()->create([
+            'sender_id' => $user->id,
+            'sender_type' => 'user',
+            'message' => "Câu hỏi từ chatbot sản phẩm: {$product->name} (ID: {$product->id})\n\nKhách hỏi: {$message}\n\nGhi chú AI: {$reason}",
+        ]);
+
+        $conversation->update(['last_message_at' => now()]);
+
+        return response()->json([
+            'reply' => 'Câu hỏi này cần admin hỗ trợ thêm vì hiện chưa có đủ dữ liệu trong hệ thống. Mình đã chuyển tin nhắn của bạn sang bộ phận hỗ trợ, admin sẽ phản hồi trong mục Liên hệ.',
+            'forwarded_to_admin' => true,
+        ]);
     }
 
     private function fetchData(string $action, string $table, ?string $filter, string $messageLower): array

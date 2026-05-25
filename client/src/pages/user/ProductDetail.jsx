@@ -7,6 +7,7 @@ import { getImageUrl } from "../../utils/image";
 import { createSlug } from "../../utils/slug";
 import { getDiscountInfo } from "../../utils/discount";
 import { getProductReviews } from "../../services/reviewService";
+import ChatBotAI from "../ChatBotAI ";
 
 export default function ProductDetail() {
   document.title = "Chi tiết sản phẩm";
@@ -150,6 +151,13 @@ export default function ProductDetail() {
 
   return (
     <div className="bg-gradient-to-br from-stone-50 via-amber-50/20 to-stone-100 min-h-screen py-8">
+      <ChatBotAI
+        product={product}
+        onAddToCart={handleAddToCart}
+        title="Tư vấn sản phẩm"
+        placeholder="Hỏi về sản phẩm này..."
+      />
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* BREADCRUMB */}
         <div className="mb-6 text-sm text-gray-500">
