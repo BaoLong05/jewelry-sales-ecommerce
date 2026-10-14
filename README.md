@@ -21,7 +21,14 @@ Hệ thống được phát triển theo mô hình tách biệt Backend và Fron
 
 Website đã được deploy tại:
 
-https://5f290e8b.jewelry-sales-ecommerce.pages.dev/
+http://tranbaolong.io.vn/
+
+Tài khoản:
+1. Tên đăng nhập: user1@gmail.com
+   password: User123@
+
+2. Tên đăng nhập: user2@gmail.com
+   password: User123@
 
 ---
 
